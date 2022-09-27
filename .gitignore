@@ -1,8 +1,6 @@
 /Resources/*
-!/Resources/.gitkeep
 
 /.Miniatures/*
-!/.Miniatures/.gitkeep
 
 /.Miniatures_temp/*
 
