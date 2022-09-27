@@ -1,12 +1,19 @@
 
 
-from codecs import ignore_errors
-import ctypes
+
 import os
 import shutil
+import sys
 from Controller.Miniature import Miniature
 from Controller.TimelineManager import TimelineManager
 from View.PreprocessView import PreprocessView
+
+if sys.platform == "win32":
+    print("windows")
+    import ctypes
+
+elif sys.platform == "darwin":
+    print("macos")
 
 
 class PreprocessController:
@@ -30,7 +37,8 @@ class PreprocessController:
         self.stop = False
         self._view.set_prefix("Operation status:")
         os.mkdir(self._model.MINIATURE_TEMP)
-        ctypes.windll.kernel32.SetFileAttributesW(self._model.MINIATURE_TEMP, 0x02)
+        if sys.platform == "win32":
+            ctypes.windll.kernel32.SetFileAttributesW(self._model.MINIATURE_TEMP, 0x02)
         self.miniaturize_image()
 
     def calculate_dept(self, path):

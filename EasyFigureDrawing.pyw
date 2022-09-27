@@ -1,10 +1,7 @@
-from time import time
-from tkinter import Tk
 from customtkinter import CTk
 
 from Controller.ResourceExplorerController import ResourceExplorerController
 from Controller.TimelineManager import TimelineManager
-from View.CustomTreeView import CustomTreeview
 
 from View.View import View
 
