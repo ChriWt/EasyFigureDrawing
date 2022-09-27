@@ -1,3 +1,4 @@
-Resources/*
-
+/Resources/*
+/.Miniatures/*
+/.Miniatures_temp/*
 .DS_Store
