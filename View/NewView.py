@@ -39,16 +39,12 @@ class ResourceExplorerView:
         self._right_frame = CTkFrame(self._main_frame)
 
         self._init_left_side()
-        # self._init_right_side()
 
     def _init_left_side(self):
         self._upper_left_frame = CTkFrame(self._left_frame)
         self._folder_explorer_tree = CustomTreeview(self._upper_left_frame, self)
 
         self._lower_left_frame = CTkFrame(self._left_frame)
-
-    # def _init_right_side(self):
-        # self._miniature_container = self._create_new_image_container()
 
     def _pack(self) -> None:
         self._main_frame.pack(fill=BOTH, expand=True)
@@ -59,8 +55,6 @@ class ResourceExplorerView:
         self._folder_explorer_tree.pack(side=TOP, fill=Y, expand=True)
 
         self._lower_left_frame.pack(side=BOTTOM, fill=Y, expand=True)
-
-        # self._miniature_container.pack(side=LEFT, fill=BOTH, expand=True)
 
     def add_folder_to_tree(self, folder_name):
         self._folder_explorer_tree.add_node(folder_name)

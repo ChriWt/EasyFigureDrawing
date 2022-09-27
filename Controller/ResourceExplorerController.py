@@ -42,12 +42,13 @@ class ResourceExplorerController:
                 return
             
             element = content[i]
+            if element != ".gitkeep":
 
-            file_path = os.path.join(path, element)
-            if os.path.isdir(file_path):
-                self._view.add_folder_to_tree(element)
-            else:
-                self._view.add_folder_content(file_path, file_path.replace(self._model.MINIATURE, self._model.RESOURCES))
+                file_path = os.path.join(path, element)
+                if os.path.isdir(file_path):
+                    self._view.add_folder_to_tree(element)
+                else:
+                    self._view.add_folder_content(file_path, file_path.replace(self._model.MINIATURE, self._model.RESOURCES))
             self._timeline.after(1, lambda: add_if_folder(i + 1))
 
         add_if_folder()
