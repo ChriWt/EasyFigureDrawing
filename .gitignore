@@ -1,4 +1,6 @@
 /Resources/*
 /.Miniatures/*
 /.Miniatures_temp/*
+
+*.pyc
 .DS_Store
