@@ -1,7 +1,9 @@
 /Resources/*
-!/Resources/.gitignore
+!/Resources/.gitkeep
+
 /.Miniatures/*
-!/.Miniatures/.gitignore
+!/.Miniatures/.gitkeep
+
 /.Miniatures_temp/*
 
 *.pyc
