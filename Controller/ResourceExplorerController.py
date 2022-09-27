@@ -41,7 +41,7 @@ class ResourceExplorerController:
             element = content[i]
             
             file_path = os.path.join(path, element)
-            
+
             if os.path.isdir(file_path):
                 self._view.add_folder_to_tree(element)
             else:

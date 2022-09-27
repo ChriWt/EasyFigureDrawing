@@ -1,5 +1,5 @@
 from tkinter import BOTH, BOTTOM, END, LEFT, RIGHT, TOP, WORD, Y, Text, Menu
-from customtkinter import CTkFrame
+from customtkinter import CTkFrame, CTkScrollbar
 from Controller.Miniature import Miniature
 from Controller.TimelineManager import TimelineManager
 from Model.ResourceExplorerModel import ResourceExplorerModel
@@ -22,6 +22,8 @@ class ResourceExplorerView:
 
         self._folder_explorer_tree = CustomTreeview
 
+        self._folder_content_scrollbar = CTkScrollbar
+
         self._menu_bar = Menu(self._controller.get_root_window())
         self._menu_bar.option_add('*tearOff', False)
         self._controller.get_root_window().config(menu=self._menu_bar)
@@ -40,12 +42,16 @@ class ResourceExplorerView:
         self._right_frame = CTkFrame(self._main_frame)
 
         self._init_left_side()
+        self._init_right_side()
 
     def _init_left_side(self):
         self._upper_left_frame = CTkFrame(self._left_frame)
         self._folder_explorer_tree = CustomTreeview(self._upper_left_frame, self)
 
         self._lower_left_frame = CTkFrame(self._left_frame)
+
+    def _init_right_side(self):
+        self._folder_content_scrollbar = CTkScrollbar(self._right_frame)
 
     def _pack(self) -> None:
         self._main_frame.pack(fill=BOTH, expand=True)
@@ -56,13 +62,14 @@ class ResourceExplorerView:
         self._folder_explorer_tree.pack(side=TOP, fill=Y, expand=True)
 
         self._lower_left_frame.pack(side=BOTTOM, fill=Y, expand=True)
+        self._folder_content_scrollbar.pack(side=RIGHT, fill=Y)
 
     def add_folder_to_tree(self, folder_name):
         name = folder_name.replace(ResourceExplorerModel.MINIATURE, ResourceExplorerModel.RESOURCES)
         self._folder_explorer_tree.add_node(name)
 
     def add_folder_content(self, miniature, original):
-        container = self._loaded_folder[self._current_path]
+        container = self.get_folder_container()
         miniature = Miniature(container, self, miniature, original)
         miniature.pack()
         container.window_create(END, window=miniature.get_body())
@@ -71,7 +78,7 @@ class ResourceExplorerView:
         self._timeline.stop_all()
         
         if self._current_path != "":
-            self._loaded_folder[self._current_path].pack_forget()
+            self.get_folder_container().pack_forget()
 
         self._current_path = path
         
@@ -83,15 +90,22 @@ class ResourceExplorerView:
 
     def pack_current_folder(self):
         if self._current_path != "":
-            self._loaded_folder[self._current_path].pack(side=LEFT, fill=BOTH, expand=True)
+            self.get_folder_container().pack(side=LEFT, fill=BOTH, expand=True)
+            self._folder_content_scrollbar.configure(command= self.get_folder_container().yview)
 
-    def get_current_folder_content_container(self):
+            self.get_folder_container().configure(yscroll=self._folder_content_scrollbar.set)
+
+    def get_folder_container(self):
         return self._loaded_folder[self._current_path]
 
     def _create_new_image_container(self):
-        return Text(self._right_frame, 
+        text = Text(self._right_frame, 
                     wrap=WORD, 
                     borderwidth=0, 
                     state="disable", 
                     bg="#2a2d2e", 
                     cursor="arrow")
+
+        
+
+        return text
