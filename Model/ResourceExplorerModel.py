@@ -6,11 +6,11 @@ from Controller.TimelineManager import TimelineManager
 
 class ResourceExplorerModel:
     
-    RESOURCES = "./Resources/"
+    RESOURCES = "Resources"
 
-    MINIATURE = "./.Miniatures/"
+    MINIATURE = ".Miniatures"
 
-    MINIATURE_TEMP = "./.Miniatures_temp/"
+    MINIATURE_TEMP = ".Miniatures_temp/"
 
     def __init__(self) -> None:
         self._images = list()

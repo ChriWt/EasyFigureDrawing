@@ -7,6 +7,7 @@ from customtkinter import CTkFrame, CTkScrollbar
 from tkinter import END, LEFT, Y
 
 from Controller.TimelineManager import TimelineManager
+from Model.ResourceExplorerModel import ResourceExplorerModel
 
 class CustomTreeview:
 
@@ -40,6 +41,7 @@ class CustomTreeview:
             return go_up(parent, path)
 
         path = go_up(self._treeview.selection()[0])
+        path = path.replace(ResourceExplorerModel.RESOURCES, ResourceExplorerModel.MINIATURE)
         self._controller.on_load_request(path)
 
     def add_node(self, text):

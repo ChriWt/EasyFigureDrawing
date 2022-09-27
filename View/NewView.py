@@ -2,6 +2,7 @@ from tkinter import BOTH, BOTTOM, END, LEFT, RIGHT, TOP, WORD, Y, Text, Menu
 from customtkinter import CTkFrame
 from Controller.Miniature import Miniature
 from Controller.TimelineManager import TimelineManager
+from Model.ResourceExplorerModel import ResourceExplorerModel
 from View.CustomTreeView import CustomTreeview
 
 
@@ -57,7 +58,8 @@ class ResourceExplorerView:
         self._lower_left_frame.pack(side=BOTTOM, fill=Y, expand=True)
 
     def add_folder_to_tree(self, folder_name):
-        self._folder_explorer_tree.add_node(folder_name)
+        name = folder_name.replace(ResourceExplorerModel.MINIATURE, ResourceExplorerModel.RESOURCES)
+        self._folder_explorer_tree.add_node(name)
 
     def add_folder_content(self, miniature, original):
         container = self._loaded_folder[self._current_path]
@@ -67,6 +69,7 @@ class ResourceExplorerView:
 
     def on_load_request(self, path):
         self._timeline.stop_all()
+        
         if self._current_path != "":
             self._loaded_folder[self._current_path].pack_forget()
 

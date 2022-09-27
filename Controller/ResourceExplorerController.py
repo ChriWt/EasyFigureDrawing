@@ -19,16 +19,14 @@ class ResourceExplorerController:
         self._view = ResourceExplorerView(self)
 
         self._clear_placeholder_files()
-
+        
         self._folder_content_loaded = list()
 
         self._timeline = TimelineManager.get_instance()
         
-        self._add_folder_content()
+        self._view.add_folder_to_tree(self._model.MINIATURE)
 
     def _add_folder_content(self, path = ""):
-        path = os.path.join(self._model.MINIATURE, path)
-
         if path in self._folder_content_loaded: 
             self._view.pack_current_folder()
             return
@@ -43,6 +41,7 @@ class ResourceExplorerController:
             element = content[i]
             
             file_path = os.path.join(path, element)
+            
             if os.path.isdir(file_path):
                 self._view.add_folder_to_tree(element)
             else:

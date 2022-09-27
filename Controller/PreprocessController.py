@@ -9,11 +9,7 @@ from Controller.TimelineManager import TimelineManager
 from View.PreprocessView import PreprocessView
 
 if sys.platform == "win32":
-    print("windows")
     import ctypes
-
-elif sys.platform == "darwin":
-    print("macos")
 
 
 class PreprocessController:
