@@ -1,25 +1,24 @@
 from __future__ import annotations
-import ctypes
 import os
 import typing
-from Controller.Miniature import Miniature
 from Controller.PreprocessController import PreprocessController
 from Controller.TimelineManager import TimelineManager
 
 from View.NewView import ResourceExplorerView
 
 if typing.TYPE_CHECKING:
-    from FDTool import FDTool
     from customtkinter import CTk
 
 from Model.ResourceExplorerModel import ResourceExplorerModel
 
 class ResourceExplorerController:
     
-    def __init__(self, root: FDTool) -> None:
+    def __init__(self, root) -> None:
         self._root = root
         self._model = ResourceExplorerModel()
         self._view = ResourceExplorerView(self)
+
+        self._clear_placeholder_files()
 
         self._folder_content_loaded = list()
 
@@ -42,13 +41,13 @@ class ResourceExplorerController:
                 return
             
             element = content[i]
-            if element != ".gitkeep":
-
-                file_path = os.path.join(path, element)
-                if os.path.isdir(file_path):
-                    self._view.add_folder_to_tree(element)
-                else:
-                    self._view.add_folder_content(file_path, file_path.replace(self._model.MINIATURE, self._model.RESOURCES))
+            
+            file_path = os.path.join(path, element)
+            if os.path.isdir(file_path):
+                self._view.add_folder_to_tree(element)
+            else:
+                self._view.add_folder_content(file_path, file_path.replace(self._model.MINIATURE, self._model.RESOURCES))
+            
             self._timeline.after(1, lambda: add_if_folder(i + 1))
 
         add_if_folder()
@@ -73,3 +72,14 @@ class ResourceExplorerController:
 
     def preprocess_images(self):
         PreprocessController(self._root, self._model)
+
+    def _clear_placeholder_files(self):
+     
+        def delete(file):
+            if os.path.exists(file):
+                os.remove(file)
+
+        file = os.path.join(self._model.RESOURCES, ".gitkeep")
+        delete(file)
+        file = os.path.join(self._model.MINIATURE, ".gitkeep")
+        delete(file)

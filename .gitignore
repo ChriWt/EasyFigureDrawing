@@ -1,8 +1,12 @@
 /Resources/*
+!/Resources/.gitkeep
 
 /.Miniatures/*
+!/.Miniatures/.gitkeep
 
 /.Miniatures_temp/*
+
+/.vscode/*
 
 *.pyc
 .DS_Store

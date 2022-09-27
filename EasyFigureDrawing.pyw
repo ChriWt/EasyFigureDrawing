@@ -6,7 +6,7 @@ from Controller.TimelineManager import TimelineManager
 from View.View import View
 
 
-class FDTool:
+class EasyFigureDrawing:
 
     def __init__(self) -> None:
         self._loaded_controller = None
@@ -33,6 +33,6 @@ class FDTool:
         return self._window    
 
 if __name__ == "__main__":
-    main = FDTool()
+    main = EasyFigureDrawing()
     main.load_view(View.RESOURCE_EXPLORER)
     main.start()
