@@ -3,6 +3,7 @@ from __future__ import annotations
 from customtkinter import CTk, CTkFrame, Y, X, BOTH , TOP, BOTTOM, LEFT, RIGHT
 from Utils.Position import Position
 
+
 import typing
 
 if typing.TYPE_CHECKING:

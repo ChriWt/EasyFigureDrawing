@@ -1,4 +1,4 @@
-from View.AppView import AppView
+from Core.AppView import AppView
 
 
 class AppController:
