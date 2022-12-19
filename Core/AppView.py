@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from customtkinter import CTk, CTkFrame, Y, X, BOTH , TOP, BOTTOM, LEFT, RIGHT
 from Utils.Position import Position
-
+from ttkbootstrap import Frame
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 import typing
 
 if typing.TYPE_CHECKING:
     from Utils.Position import Position
+    from Core.AppController import AppController
+
 
 class AppView:
     
@@ -15,13 +18,21 @@ class AppView:
     _CONFIGURATION = "configs"
     _VISIBLE = "visible"
 
-    def __init__(self) -> None:
-        self._root = CTk()
+    def __init__(self, controller: AppController) -> None:
+        self._width = 1280
+        self._height = 700
+        self._controller = controller
 
-        self._middle = CTkFrame(self._root)
+        self._root = ttk.Window(title="Figure Drawing", 
+                                size=(self._width, self._height), 
+                                themename="darkly")
+        self._root.place_window_center()
+        self._root.bind("<Configure>", self._on_configure_event)
+
+        self._middle = Frame(self._root)
         self._components = {
             Position.TOP: {
-                self._COMPONENT: CTkFrame(self._root), 
+                self._COMPONENT: Frame(self._root), 
                 self._CONFIGURATION: {"side":TOP, "fill":X, "padx":5, "pady":(5, 0)},
                 self._VISIBLE: True
             },
@@ -33,25 +44,25 @@ class AppView:
             },
 
             Position.BOTTOM: {
-                self._COMPONENT: CTkFrame(self._root), 
+                self._COMPONENT: Frame(self._root), 
                 self._CONFIGURATION: {"side":BOTTOM, "fill":X, "padx":5, "pady":(0, 5)},
                 self._VISIBLE: True
             },
 
             Position.LEFT: {
-                self._COMPONENT: CTkFrame(self._middle),
+                self._COMPONENT: Frame(self._middle),
                 self._CONFIGURATION: {"side":LEFT, "fill":Y, "padx":(0, 5)},
                 self._VISIBLE: True
             },
 
             Position.CENTER: {
-                self._COMPONENT: CTkFrame(self._middle),
+                self._COMPONENT: Frame(self._middle),
                 self._CONFIGURATION: {"side":LEFT, "fill":BOTH, "expand":True},
                 self._VISIBLE: True
             },
 
             Position.RIGHT: {
-                self._COMPONENT: CTkFrame(self._middle),
+                self._COMPONENT: Frame(self._middle),
                 self._CONFIGURATION: {"side":RIGHT, "fill":Y, "padx":(5, 0)},
                 self._VISIBLE: True
             }
@@ -59,10 +70,15 @@ class AppView:
 
         self._pack_frames()
 
+    def _on_configure_event(self, _):
+        event_width, event_height = self.get_size()
+        if event_width != self._width or event_height != self._height:
+            self._width, self._height = event_width, event_height
+            self._controller.on_size_change()
+
     def _pack_frames(self) -> None:
         for position, widget in self._components.items():
             widget[self._COMPONENT].pack(**widget[self._CONFIGURATION])
-
 
     def clear(self, position: Position = Position.ALL) -> None:
         if position not in self._components and position != Position.ALL:
@@ -76,16 +92,16 @@ class AppView:
     def _clear_all(self) -> None:
         [self.clear(position) for position in self._components if position != Position.MIDDLE]
 
-    def _clear(self, container: CTkFrame) -> None:
+    def _clear(self, container: Frame) -> None:
         [element.destroy() for element in container.winfo_children()]
 
 
-    def new_frame(self, position: Position) -> CTkFrame:
+    def new_frame(self, position: Position, **keyargs) -> Frame:
         if position not in self._components:
             raise Exception(f"Position {position} not valid!")
 
         root = self._components[position][self._COMPONENT]
-        return CTkFrame(root)
+        return Frame(root, **keyargs)
 
 
     def hide(self, position: Position) -> None:
@@ -122,9 +138,11 @@ class AppView:
         self._components[position][self._COMPONENT].configure(**keyargs)
 
 
-    def get_root(self) -> CTk:
+    def get_root(self) -> ttk.Window:
         return self._root
 
+    def get_size(self) -> tuple:
+        return self._root.winfo_width(), self._root.winfo_height()
 
     def start(self) -> None:
         self._root.mainloop()
