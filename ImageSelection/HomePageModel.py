@@ -5,24 +5,34 @@ from Utils.CycleManager import CycleManager
 
 class HomePageModel:
 
-    MINIATURE_FOLDER = r".\.Miniatures"
+    MINIATURE_FOLDER = r".Miniatures"
+    RESOURCES_FOLDER = r"Resources"
+    LOADED = "loaded"
+    COUNT = "count"
 
     def __init__(self) -> None:
-        self._current_folder = self.MINIATURE_FOLDER
-        self._folder_content_map = {}
+        self._current_folder = ".\\" + self.MINIATURE_FOLDER
+        self._folder_loading_state = {}
         self._folder_content_count = None
 
-    def add_folder_content(self, folder: str, content: list) -> None:
-        self._folder_content_map[folder] = content
-
-    def get_folder_content(self, folder: str) -> list:
-        return self._folder_content_map[folder]
+        self.set_current_folder(self.get_full_path_current_folder())
     
     def set_current_folder(self, folder: str) -> None:
         self._current_folder = folder
+        if self.get_full_path_current_folder() not in self._folder_loading_state:
+            self._folder_loading_state[self.get_full_path_current_folder()] = {self.LOADED: False, self.COUNT: 0}
 
     def get_current_folder(self) -> str:
         return self._current_folder
+
+    def get_folder_loading_state(self) -> dict:
+        return self._folder_loading_state[self.get_full_path_current_folder()]
+
+    def set_current_folder_as_loaded(self) -> None:
+        self._folder_loading_state[self.get_full_path_current_folder()][self.LOADED] = True
+
+    def increment_current_folder_loaded_file_count(self) -> None:
+        self._folder_loading_state[self.get_full_path_current_folder()][self.COUNT] += 1
 
     def get_full_path_current_folder(self) -> str:
         return os.path.abspath(self.get_current_folder())

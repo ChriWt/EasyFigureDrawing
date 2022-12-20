@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import pprint
 from ImageSelection.HomePageModel import HomePageModel
 from ImageSelection.HomePageView import HomePageView
 
@@ -29,11 +30,17 @@ class HomePageController:
         self._view.insert_folder_content(parent=os.path.basename(self._model.get_current_folder()), folders=folders, add_back=False)
 
     def display_folder_content(self) -> None:
+        load_start_index = 0
+
         folder = self._model.get_full_path_current_folder()
         self._view.hide_current_directory_content()
+
         if self._view.is_directory_loaded(folder):
-            self._view.show_directory_loaded(folder)
-            return
+            if self._model.get_folder_loading_state()[self._model.LOADED]:
+                self._view.show_directory_loaded(folder)
+                return
+            else:
+                load_start_index = self._model.get_folder_loading_state()[self._model.COUNT]
         
         self._view.new_directory_container(folder)
 
@@ -43,15 +50,23 @@ class HomePageController:
         size = len(content)
         manager = CycleManager.get_instance()
 
+        self._view.change_progress_bar_state(True)
+
         def adding_cycle(i=0):
-            if i > len(content):
+            
+            if i == len(content):
+                self._model.set_current_folder_as_loaded()
+                self._view.change_progress_bar_state(False)
                 return
+
             path = os.path.abspath(os.path.join(self._model.get_current_folder(), content[i]))
+           
             self._view.add_new_element(path)
-            self._view.update_progress_bar((i + 1) / size * 100)
+            self._model.increment_current_folder_loaded_file_count()
+            self._view.update_progress_bar(i + 1, size)
             manager.after(1, lambda: adding_cycle(i + 1))
 
-        adding_cycle()
+        adding_cycle(load_start_index)
 
     def _go_to(self, folder: str) -> None:
         self._view.clear_folders()
@@ -64,6 +79,7 @@ class HomePageController:
 
         self._view.set_path(path)
         self._view.insert_folder_content(parent=parent, folders=folders, add_back=add_back)
+        self._view.change_progress_bar_state(False)
         self.display_folder_content()
 
     def _get_only_directories(self) -> list:
@@ -75,7 +91,7 @@ class HomePageController:
         symbol, *folder = item.split(' ')
         CycleManager.get_instance().stop_all()
         self._model.reset_file_count()
-        self._view.update_progress_bar(0)
+        self._view.update_progress_bar(0, 0)
         self._go_to(' '.join(folder))
 
     def get_model(self) -> HomePageModel:

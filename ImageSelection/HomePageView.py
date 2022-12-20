@@ -43,6 +43,7 @@ class HomePageView(SizeChangeListener):
         bottom_style = SECONDARY
         self._bottom_bar = Frame(self._bottom_frame, bootstyle=bottom_style)
         self._path_label = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
+        self._loading_state = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
         self._progress_bar = Progressbar(self._bottom_bar, 
                                         bootstyle=(STRIPED, SUCCESS),
                                         orient=HORIZONTAL,
@@ -57,7 +58,6 @@ class HomePageView(SizeChangeListener):
         self._current_visible = None
 
         self.directory_width = 0
-        self.directory_height = 0
 
         self._pack()
 
@@ -69,6 +69,7 @@ class HomePageView(SizeChangeListener):
         self._bottom_bar.pack(side=BOTTOM, fill=X, expand=True)
         self._path_label.pack(side=LEFT)
         self._progress_bar.pack(side=RIGHT, padx=(0,5))
+        self._loading_state.pack(side=RIGHT, padx=(0, 5))
         self._directory_treeview.pack(fill=Y, expand=True)
 
     def insert_folder_content(self, parent: str, folders: list, add_back: bool=True) -> None:
@@ -93,7 +94,6 @@ class HomePageView(SizeChangeListener):
     def update(self, size: tuple) -> None:
         self._current_visible.update()
         self.directory_width = self._current_visible.winfo_width()
-        self.directory_height = self._current_visible.winfo_height()
         CycleManager.get_instance().stop_all()
         self.optimize_image_spacing()
 
@@ -107,21 +107,20 @@ class HomePageView(SizeChangeListener):
         self._current_visible = frame
 
         frame.update()
-        self.directory_width = frame.winfo_width() - 20
-        self.directory_height = frame.winfo_height() - 20
+        self.directory_width = frame.winfo_width() - 20 # Approximated Scrollbar's width
 
     def add_new_element(self, path: str) -> None:
         directory_frame = self._directory_loaded[os.path.dirname(path)]
         preview = Preview(directory_frame.get_frame(), path)
-
+        
         self._place_preview(directory_frame, preview)
-        directory_frame.get_frame().configure(height=directory_frame.get_row() * Preview.VERTICAL_PHOTO_HEIGHT + directory_frame.get_row() * 5)
+        directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
 
         directory_frame.add_content(preview)
 
     def update_frame_size(self, path: str) -> None:
         directory_frame = self._directory_loaded[path]
-        directory_frame.get_frame().configure(height=directory_frame.get_row() * Preview.VERTICAL_PHOTO_HEIGHT + directory_frame.get_row() * 5)
+        directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
 
     def optimize_image_spacing(self):
         path = self._controller.get_model().get_full_path_current_folder()
@@ -134,13 +133,24 @@ class HomePageView(SizeChangeListener):
         def cycle(i=0):
             preview = directory_frame.get_preview(i)
             self._place_preview(directory_frame, preview)
-            directory_frame.get_frame().configure(height=directory_frame.get_row() * Preview.VERTICAL_PHOTO_HEIGHT + directory_frame.get_row() * 5)
-            self.update_progress_bar((i + 1) / size * 100)
+            directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
+            self.update_progress_bar(i + 1, size)
             manager.after(1, lambda: cycle(i + 1))
         cycle()
 
-    def update_progress_bar(self, progress: float) -> None:
-        self._progress_bar['value'] = progress
+    def update_progress_bar(self, current: int, total: int) -> None:
+        if total == 0: return
+        percentage = current / total * 100
+        self._progress_bar['value'] = percentage
+        self._loading_state['text'] = f"{current}/{total} ({percentage: .2f}%)"
+
+    def change_progress_bar_state(self, state: bool) -> None:
+        if state:
+            self._progress_bar.pack(side=RIGHT, padx=(0,5))
+            self._loading_state.pack(side=RIGHT, padx=(0,5))
+        else: 
+            self._progress_bar.pack_forget()
+            self._loading_state.pack_forget()
 
     def _place_preview(self, directory_frame: Directory, preview: Preview) -> None:
         width, height = preview.get_size()

@@ -1,7 +1,9 @@
 from __future__ import annotations
-from ttkbootstrap import Canvas, Checkbutton
+from ttkbootstrap import Canvas, Checkbutton, BooleanVar
 from ttkbootstrap.constants import NW
 from PIL import Image, ImageTk
+from ImageSelection.HomePageModel import HomePageModel
+from ImageSelection.ImageMagnifier import newImageMagnifier
 
 import typing
 
@@ -23,9 +25,12 @@ class Preview:
         self._checkbutton = None
         self._image = None
         self._size = ()
+        self._value = BooleanVar()
 
         self._load_image()
         self._init_body()
+        
+        newImageMagnifier(self._canvas, path.replace(HomePageModel.MINIATURE_FOLDER, HomePageModel.RESOURCES_FOLDER))
 
     def _load_image(self) -> None:
         self._image = Image.open(self._path)
@@ -37,7 +42,7 @@ class Preview:
         self._canvas = Canvas(self._master, width=width, height=height)
         self._canvas.create_image(0, 0, anchor=NW, image=self._image, tags="image")
 
-        self._checkbutton = Checkbutton(self._canvas, text='')
+        self._checkbutton = Checkbutton(self._canvas, variable=self._value, bootstyle="success-toolbutton", text='')
         self._checkbutton.place(x=width - 24, y=height - 24)
 
     def get_size(self) -> tuple:
@@ -49,4 +54,8 @@ class Preview:
     def place(self, **keyargs) -> None:
         self._canvas.place(**keyargs)
 
-    
+    def get_value(self) -> bool:
+        return self._value.get()
+
+    def set_value(self, value: bool):
+        self._value.set(value)
