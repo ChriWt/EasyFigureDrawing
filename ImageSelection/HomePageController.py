@@ -25,8 +25,8 @@ class HomePageController:
 
     def _init_folder_view(self) -> None:
         folders = self._get_only_directories()
-
-        self._view.set_path(os.path.abspath(self._model.get_current_folder()).replace(self._model.MINIATURE_FOLDER, self._model.RESOURCES_FOLDER))
+        
+        self._view.set_path(os.path.abspath(self._model.get_current_folder()).replace(self._core.get_model().MINIATURE_FOLDER, self._core.get_model().RESOURCES_FOLDER))
         self._view.insert_folder_content(parent=os.path.basename(self._model.get_current_folder()), folders=folders, add_back=False)
 
     def display_folder_content(self) -> None:
@@ -75,9 +75,9 @@ class HomePageController:
 
         parent = os.path.basename(path)
         folders = self._get_only_directories()
-        add_back = not os.path.samefile(self._model.get_current_folder(), self._model.MINIATURE_FOLDER)
-
-        self._view.set_path(path.replace(self._model.MINIATURE_FOLDER, self._model.RESOURCES_FOLDER))
+        add_back = not os.path.samefile(self._model.get_current_folder(), self._core.get_model().MINIATURE_FOLDER)
+        
+        self._view.set_path(path.replace(self._core.get_model().MINIATURE_FOLDER, self._core.get_model().RESOURCES_FOLDER))
         self._view.insert_folder_content(parent=parent, folders=folders, add_back=add_back)
         self._view.change_progress_bar_state(False)
         self.display_folder_content()

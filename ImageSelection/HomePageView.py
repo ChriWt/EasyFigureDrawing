@@ -36,6 +36,7 @@ class HomePageView(SizeChangeListener):
         view = self._controller.get_core().get_view()
         view.hide(Position.TOP)
         view.hide(Position.RIGHT)
+        view.show(Position.LEFT)
         self._left_frame = view.new_frame(Position.LEFT)
         self._bottom_frame = view.new_frame(Position.BOTTOM)
         self._center_frame = view.new_frame(Position.CENTER)

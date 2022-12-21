@@ -2,7 +2,7 @@ from __future__ import annotations
 from ttkbootstrap import Canvas, Checkbutton, BooleanVar
 from ttkbootstrap.constants import NW
 from PIL import Image, ImageTk
-from ImageSelection.HomePageModel import HomePageModel
+from Core.AppModel import AppModel
 from ImageSelection.ImageMagnifier import newImageMagnifier
 
 import typing
@@ -29,8 +29,8 @@ class Preview:
 
         self._load_image()
         self._init_body()
-        
-        newImageMagnifier(self._canvas, path.replace(HomePageModel.MINIATURE_FOLDER, HomePageModel.RESOURCES_FOLDER))
+
+        newImageMagnifier(self._canvas, path.replace(AppModel.MINIATURE_FOLDER, AppModel.RESOURCES_FOLDER))
 
     def _load_image(self) -> None:
         self._image = Image.open(self._path)

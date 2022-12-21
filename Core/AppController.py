@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from Core.AppModel import AppModel
 
 from Utils.CycleManager import CycleManager
 
@@ -12,8 +13,11 @@ from Core.AppView import AppView
 
 class AppController:
 
-    def __init__(self) -> None:
+    def __init__(self, core) -> None:
+        self._core = core
+
         self._view = AppView(self)
+        self._model = AppModel()
         self._cycle_manager = CycleManager.get_instance()
         self._cycle_manager.set_root(self._view.get_root())
         
@@ -34,6 +38,12 @@ class AppController:
 
     def get_view(self) -> AppView:
         return self._view
+    
+    def get_model(self) -> AppModel:
+        return self._model
+
+    def on_preprocessing_end(self):
+        self._core.start_home_page()
 
     def start(self):
         self._view.start()

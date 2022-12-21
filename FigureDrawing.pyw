@@ -1,60 +1,32 @@
 from Core.AppController import AppController
 from ImageSelection.HomePageController import HomePageController
+from Preprocessing.PreprocessingController import PreprocessingController
 
 
 class Main:
 
+    NORMAL_APP_SIZE = (1280, 700)
+    SMALL_APP_SIZE = (480, 100)
+
     def __init__(self) -> None:
-        self._application = AppController()
+        self._application = AppController(self)
         self._current_view_controller = None
 
-    def start(self) -> None:
+    def start_preprocessing(self) -> None:
+        self._application.get_view().change_app_size(self.SMALL_APP_SIZE)
+        self._current_view_controller = PreprocessingController(self._application)
+
+    def start_home_page(self) -> None:
+        self._application.get_view().clear()
+        self._application.get_view().change_app_size(self.NORMAL_APP_SIZE)
         self._current_view_controller = HomePageController(self._application)
         self._application.add_size_change_listener(self._current_view_controller.get_view())
+
+    def start(self) -> None:
+        self.start_preprocessing()
         self._application.start()
         
 
 if __name__ == "__main__":
     application = Main()
     application.start()
-
-    # application = AppController()
-
-    # from Utils.Position import Position
-
-    # from customtkinter import CTkButton
-
-    # from ttkbootstrap import Button
-    # f = application.get_view().new_frame(Position.TOP)
-    # f.pack()
-
-    # b = Button(f, text="TOP")
-    # b.pack()
-
-    # f = application.get_view().new_frame(Position.CENTER)
-    # f.pack()
-
-    # b = Button(f, text="CENTER", command=lambda: application.get_view().clear())
-    # b.pack()
-
-    # f = application.get_view().new_frame(Position.RIGHT)
-    # f.pack()
-
-    # b = Button(f, text="RIGHT BOT")
-    # b.pack()
-
-    # f = application.get_view().new_frame(Position.BOTTOM)
-    # f.pack()
-
-    # b = Button(f, text="BOTTOM BOT")
-    # b.pack()
-
-    # f = application.get_view().new_frame(Position.LEFT)
-    # f.pack()
-
-    # b = Button(f, text="LEFT BOT")
-    # b.pack()
-
-    # application.get_view().configure(Position.BOTTOM, bootstyle="primary")
-
-    # application.start()    

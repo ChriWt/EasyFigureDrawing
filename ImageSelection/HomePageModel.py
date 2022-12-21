@@ -1,17 +1,15 @@
 import os
 
-from Utils.CycleManager import CycleManager
+from Core.AppModel import AppModel
 
 
 class HomePageModel:
 
-    MINIATURE_FOLDER = r".Miniatures"
-    RESOURCES_FOLDER = r"Resources"
     LOADED = "loaded"
     COUNT = "count"
 
     def __init__(self) -> None:
-        self._current_folder = ".\\" + self.MINIATURE_FOLDER
+        self._current_folder = ".\\" + AppModel.MINIATURE_FOLDER
         self._folder_loading_state = {}
         self._folder_content_count = None
         self._selected_images = set()

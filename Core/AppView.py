@@ -70,6 +70,10 @@ class AppView:
 
         self._pack_frames()
 
+    def change_app_size(self, size: tuple) -> None:
+        self._root.geometry(f"{size[0]}x{size[1]}")
+        self._root.position_center()
+
     def _on_configure_event(self, _):
         event_width, event_height = self.get_size()
         if event_width != self._width or event_height != self._height:
