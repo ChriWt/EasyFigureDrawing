@@ -14,6 +14,7 @@ class HomePageModel:
         self._current_folder = ".\\" + self.MINIATURE_FOLDER
         self._folder_loading_state = {}
         self._folder_content_count = None
+        self._selected_images = set()
 
         self.set_current_folder(self.get_full_path_current_folder())
     
@@ -21,6 +22,18 @@ class HomePageModel:
         self._current_folder = folder
         if self.get_full_path_current_folder() not in self._folder_loading_state:
             self._folder_loading_state[self.get_full_path_current_folder()] = {self.LOADED: False, self.COUNT: 0}
+
+    def update_image_selection_state(self, path: str, state: bool) -> None:
+        if state:
+            self._selected_images.add(path)
+        else:
+            try:
+                self._selected_images.remove(path)
+            except Exception:
+                pass
+
+    def get_selected_images(self) -> list:
+        return self._selected_images
 
     def get_current_folder(self) -> str:
         return self._current_folder

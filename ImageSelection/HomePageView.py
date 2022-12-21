@@ -8,8 +8,8 @@ from Utils.CycleManager import CycleManager
 
 
 from Utils.Position import Position
-from ttkbootstrap import Frame, Treeview, Label, Progressbar
-from ttkbootstrap.constants import END, BOTTOM, X, LEFT, Y, BOTH, RIGHT, HORIZONTAL, DETERMINATE
+from ttkbootstrap import Frame, Treeview, Label, Progressbar, Button, Labelframe, Combobox, StringVar
+from ttkbootstrap.constants import END, BOTTOM, X, LEFT, Y, BOTH, RIGHT, HORIZONTAL, DETERMINATE, TOP, DISABLED, NORMAL
 from ttkbootstrap.scrolled import ScrolledFrame
 from ttkbootstrap.style import *
 
@@ -43,6 +43,23 @@ class HomePageView(SizeChangeListener):
         bottom_style = SECONDARY
         self._bottom_bar = Frame(self._bottom_frame, bootstyle=bottom_style)
         self._path_label = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
+
+        self._figure_drawing_option_frame = Labelframe(self._center_frame, text="Settings", bootstyle=SUCCESS)
+
+        Label(self._figure_drawing_option_frame, text="Selected:").pack(side=LEFT, padx=5)
+        self._selected_count = StringVar()
+        self._selected_count.set("0")
+        Label(self._figure_drawing_option_frame, textvariable=self._selected_count, width=5).pack(side=LEFT, padx=5)
+        Label(self._figure_drawing_option_frame, text="Interval").pack(side=LEFT, padx=5)
+        self._timer_value = StringVar()
+        self._timer_value.set("60")
+        Combobox(self._figure_drawing_option_frame, 
+                bootstyle=SUCCESS, 
+                values=[x for x in range(10, 60 * 5 + 10, 10)], 
+                textvariable=self._timer_value).pack(side=LEFT, pady=(0,5))
+        Label(self._figure_drawing_option_frame, text="seconds").pack(side=LEFT, padx=5)
+        self._start_button = Button(self._figure_drawing_option_frame, text="Start", state=DISABLED, bootstyle=DANGER)
+        
         self._loading_state = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
         self._progress_bar = Progressbar(self._bottom_bar, 
                                         bootstyle=(STRIPED, SUCCESS),
@@ -51,8 +68,20 @@ class HomePageView(SizeChangeListener):
                                         length=200,
                                         value=0)                                  
 
-        self._directory_treeview = Treeview(self._left_frame)
+        self._directory_treeview = Treeview(self._left_frame, bootstyle=SUCCESS)
         self._directory_treeview.bind("<Double-1>", self.on_directory_double_click)
+
+        self.option_frame = Frame(self._center_frame, bootstyle="success")
+
+        self.select_all = Button(self.option_frame, 
+                                bootstyle="success-outline", 
+                                text="Select all",
+                                command=self.select_all)
+
+        self.deselect_all = Button(self.option_frame, 
+                                bootstyle="success-outline", 
+                                text="Deselect all",
+                                command=self.deselect_all)
 
         self._directory_loaded = {}
         self._current_visible = None
@@ -66,11 +95,21 @@ class HomePageView(SizeChangeListener):
         self._bottom_frame.pack(fill=X, expand=True)
         self._center_frame.pack(fill=BOTH, expand=True)
 
+        self.option_frame.pack(side=TOP, fill=X, pady=(0,5))
+        self.select_all.pack(side=LEFT, pady=1, padx=5)
+        self.deselect_all.pack(side=LEFT, pady=1, padx=(0,5))
+
+        self._figure_drawing_option_frame.pack(side=BOTTOM, fill=X)
+        self._start_button.pack(side=RIGHT, padx=5, pady=(0,5))
+
         self._bottom_bar.pack(side=BOTTOM, fill=X, expand=True)
         self._path_label.pack(side=LEFT)
         self._progress_bar.pack(side=RIGHT, padx=(0,5))
         self._loading_state.pack(side=RIGHT, padx=(0, 5))
         self._directory_treeview.pack(fill=Y, expand=True)
+
+    def get_interval(self) -> str:
+        return self._timer_value.get()
 
     def insert_folder_content(self, parent: str, folders: list, add_back: bool=True) -> None:
         self._directory_treeview.heading('#0', text=parent, anchor='w')
@@ -102,8 +141,9 @@ class HomePageView(SizeChangeListener):
 
     def new_directory_container(self, folder: str) -> None:
         frame = ScrolledFrame(self._center_frame, autohide=True)
+        frame.pack(side=TOP, fill=BOTH, expand=True)
+
         self._directory_loaded[folder] = Directory(frame)
-        frame.pack(fill=BOTH, expand=True)
         self._current_visible = frame
 
         frame.update()
@@ -112,11 +152,21 @@ class HomePageView(SizeChangeListener):
     def add_new_element(self, path: str) -> None:
         directory_frame = self._directory_loaded[os.path.dirname(path)]
         preview = Preview(directory_frame.get_frame(), path)
+        preview.add_trace(self._on_checkbutton_press)
         
         self._place_preview(directory_frame, preview)
         directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
 
         directory_frame.add_content(preview)
+    
+    def _on_checkbutton_press(self, path: str, state: bool) -> None:
+        self._controller._on_checkbutton_press(path, state)
+
+    def update_item_selected_count(self, count: int) -> None:
+        self._selected_count.set(str(count))
+
+    def enable_start_button(self, state: bool) -> None:
+        self._start_button.configure(state=(NORMAL if state else DISABLED))
 
     def update_frame_size(self, path: str) -> None:
         directory_frame = self._directory_loaded[path]
@@ -171,6 +221,14 @@ class HomePageView(SizeChangeListener):
         if self._current_visible is not None:
             self._current_visible.pack_forget()
     
+    def select_all(self) -> None:
+        key = self._controller.get_model().get_full_path_current_folder()
+        self._directory_loaded[key].select_all()
+
+    def deselect_all(self) -> None:
+        key = self._controller.get_model().get_full_path_current_folder()
+        self._directory_loaded[key].deselect_all()
+
     def show_directory_loaded(self, folder: str) -> None:
         if folder in self._directory_loaded:
             self._current_visible = self._directory_loaded[folder].get_frame()

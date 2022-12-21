@@ -26,7 +26,7 @@ class HomePageController:
     def _init_folder_view(self) -> None:
         folders = self._get_only_directories()
 
-        self._view.set_path(os.path.abspath(self._model.get_current_folder()))
+        self._view.set_path(os.path.abspath(self._model.get_current_folder()).replace(self._model.MINIATURE_FOLDER, self._model.RESOURCES_FOLDER))
         self._view.insert_folder_content(parent=os.path.basename(self._model.get_current_folder()), folders=folders, add_back=False)
 
     def display_folder_content(self) -> None:
@@ -77,10 +77,16 @@ class HomePageController:
         folders = self._get_only_directories()
         add_back = not os.path.samefile(self._model.get_current_folder(), self._model.MINIATURE_FOLDER)
 
-        self._view.set_path(path)
+        self._view.set_path(path.replace(self._model.MINIATURE_FOLDER, self._model.RESOURCES_FOLDER))
         self._view.insert_folder_content(parent=parent, folders=folders, add_back=add_back)
         self._view.change_progress_bar_state(False)
         self.display_folder_content()
+
+    def _on_checkbutton_press(self, path: str, state: bool) -> None:
+        self._model.update_image_selection_state(path, state)
+        selection_count = len(self._model.get_selected_images())
+        self._view.update_item_selected_count(selection_count)
+        self._view.enable_start_button(selection_count > 0)
 
     def _get_only_directories(self) -> list:
         basepath = os.path.abspath(self._model.get_current_folder())

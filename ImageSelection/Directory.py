@@ -44,3 +44,10 @@ class Directory:
 
     def reset_current_row_size(self) -> None:
         self._current_row_size = 0
+
+    def select_all(self, state: bool=True) -> None:
+        for preview in self._content:
+            preview.set_value(state)
+
+    def deselect_all(self) -> None:
+        self.select_all(False)
