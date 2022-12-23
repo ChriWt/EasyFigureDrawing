@@ -14,20 +14,31 @@ class FigureDrawingController:
     def __init__(self, core: AppController) -> None:
         self._core = core
         self._view = FigureDrawingView(self)
-        self._model = FigureDrawingModel(self._core.get_model().get_references())
+        self._model = FigureDrawingModel(self._core.get_model())
 
         self._view.set_image(self._model.get_reference(0))
+        self._view.start_timer(self._model.get_timer())
         self._view.start()
     
     def on_display_next(self):
         image = self._model.get_next()
         if image:
+            self._view.stop_timer()
             self._view.set_image(image)
+            self._view.start_timer(self._model.get_timer())
+
+    def on_timer_end(self):
+        self.on_display_next()
+
+    def update_random_flag(self, flag: bool):
+        self._model.set_random_flag(flag)
 
     def on_display_previous(self):
         image = self._model.get_previous()
         if image:
+            self._view.stop_timer()
             self._view.set_image(image)
+            self._view.start_timer(self._model.get_timer())
 
     def get_core(self):
         return self._core

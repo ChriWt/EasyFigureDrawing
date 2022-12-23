@@ -6,6 +6,8 @@ from PIL import Image,ImageTk
 from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, SUCCESS, STRIPED, Canvas, N, Checkbutton, OUTLINE, TOOLBUTTON
 from ttkbootstrap import TOP, BOTH
 
+from Utils.CycleManager import CycleManager
+
 
 if typing.TYPE_CHECKING:
     from DrawingSession.FigureDrawingController import FigureDrawingController
@@ -27,6 +29,7 @@ class FigureDrawingView:
         self._button_frame.place(x=5, y=5)
 
         self._is_black_white = False
+        self._is_random = False
 
         self.black_white_flag = IntVar()
         self.black_white_flag.trace('w', lambda *x: self.change_black_white_flag())
@@ -36,10 +39,13 @@ class FigureDrawingView:
         self._black_white = ImageTk.PhotoImage(self._black_white)
         Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(SUCCESS, TOOLBUTTON, OUTLINE)).pack(side=TOP)
 
+        self.random_flag = IntVar()
+        self.random_flag.trace('w', lambda *x: self.change_random_flag())
+
         self._random = Image.open(r".\Assets\Random.png")
         self._random = self._random.resize((20, 20), Image.ANTIALIAS)
         self._random = ImageTk.PhotoImage(self._random)
-        Checkbutton(self._button_frame, image=self._random, bootstyle=(SUCCESS, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
+        Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(SUCCESS, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
 
         self._core.update()
         self._previous = Image.open(r".\Assets\Previous.png")
@@ -54,7 +60,10 @@ class FigureDrawingView:
 
         self._timer = Progressbar(self._core, 
                                     length=self._core.winfo_width(), 
-                                    bootstyle=(STRIPED, SUCCESS)).place(x=0, y=self._core.winfo_height() - 20)
+                                    mode='determinate',
+                                    maximum=100,
+                                    bootstyle=(STRIPED, SUCCESS))
+        self._timer.place(x=0, y=self._core.winfo_height() - 20)
 
         self._image = None
         self._grayscale_image = None
@@ -64,18 +73,41 @@ class FigureDrawingView:
         self._image = Image.open(image_path)
         
         width, height = self._image.size
-
         aspect_ratio = min(self._core.winfo_width() / width, self._core.winfo_height() / height)
-
         new_width, new_height = (int(width * aspect_ratio), int(height * aspect_ratio))
+
         self._image = self._image.resize((new_width, new_height), Image.ANTIALIAS)
+        
         self._grayscale_image = self._image.convert("L")
         
         self._draw_image()
 
+    def start_timer(self, time: int) -> None:
+        manager = CycleManager.get_instance()
+
+        def continue_timer(current_time):
+            if current_time < 0:
+                self._controller.on_timer_end()
+                return
+            self.update_timer_bar(current_time, time * 60)
+            current_time -= 1
+            manager.after(1000, lambda: continue_timer(current_time))
+
+        continue_timer(time * 60)
+
+    def stop_timer(self) -> None:
+        CycleManager.get_instance().stop_all()
+
+    def update_timer_bar(self, current_time: int, time: int) -> None:
+        self._timer["value"] = int(current_time / time * 100)
+
     def change_black_white_flag(self) -> None:
         self._is_black_white = not self._is_black_white
         self._draw_image()
+    
+    def change_random_flag(self) -> None:
+        self._is_random = not self._is_random
+        self._controller.update_random_flag(self._is_random)
 
     def _draw_image(self) -> None:
         image = None
