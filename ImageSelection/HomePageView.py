@@ -53,13 +53,13 @@ class HomePageView(SizeChangeListener):
         Label(self._figure_drawing_option_frame, textvariable=self._selected_count, width=5).pack(side=LEFT, padx=5)
         Label(self._figure_drawing_option_frame, text="Interval").pack(side=LEFT, padx=5)
         self._timer_value = StringVar()
-        self._timer_value.set("60")
+        self._timer_value.set("5")
         Combobox(self._figure_drawing_option_frame, 
                 bootstyle=SUCCESS, 
-                values=[x for x in range(10, 60 * 5 + 10, 10)], 
+                values=[x for x in range(1, 31)], 
                 textvariable=self._timer_value).pack(side=LEFT, pady=(0,5))
-        Label(self._figure_drawing_option_frame, text="seconds").pack(side=LEFT, padx=5)
-        self._start_button = Button(self._figure_drawing_option_frame, text="Start", state=DISABLED, bootstyle=DANGER)
+        Label(self._figure_drawing_option_frame, text="minutes").pack(side=LEFT, padx=5)
+        self._start_button = Button(self._figure_drawing_option_frame, text="Start", command=self._controller.on_start_click, state=DISABLED, bootstyle=DANGER)
         
         self._loading_state = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
         self._progress_bar = Progressbar(self._bottom_bar, 

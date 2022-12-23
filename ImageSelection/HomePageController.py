@@ -1,6 +1,5 @@
 from __future__ import annotations
 import os
-import pprint
 from ImageSelection.HomePageModel import HomePageModel
 from ImageSelection.HomePageView import HomePageView
 
@@ -67,6 +66,10 @@ class HomePageController:
             manager.after(1, lambda: adding_cycle(i + 1))
 
         adding_cycle(load_start_index)
+
+    def on_start_click(self) -> None:
+        self._core.get_model().set_references(list(self._model.get_selected_images()))
+        self._core.get_core().start_figure_drawing()
 
     def _go_to(self, folder: str) -> None:
         self._view.clear_folders()

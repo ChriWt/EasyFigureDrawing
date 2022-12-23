@@ -1,4 +1,5 @@
 from Core.AppController import AppController
+from DrawingSession.FigureDrawingController import FigureDrawingController
 from ImageSelection.HomePageController import HomePageController
 from Preprocessing.PreprocessingController import PreprocessingController
 
@@ -21,6 +22,9 @@ class Main:
         self._application.get_view().change_app_size(self.NORMAL_APP_SIZE)
         self._current_view_controller = HomePageController(self._application)
         self._application.add_size_change_listener(self._current_view_controller.get_view())
+
+    def start_figure_drawing(self) -> None:
+        self._current_view_controller = FigureDrawingController(self._application)
 
     def start(self) -> None:
         self.start_preprocessing()

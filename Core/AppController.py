@@ -42,6 +42,9 @@ class AppController:
     def get_model(self) -> AppModel:
         return self._model
 
+    def get_core(self):
+        return self._core
+
     def on_preprocessing_end(self):
         self._core.start_home_page()
 
