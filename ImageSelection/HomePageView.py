@@ -8,8 +8,8 @@ from Utils.CycleManager import CycleManager
 
 
 from Utils.Position import Position
-from ttkbootstrap import Frame, Treeview, Label, Progressbar, Button, Labelframe, Combobox, StringVar
-from ttkbootstrap.constants import END, BOTTOM, X, LEFT, Y, BOTH, RIGHT, HORIZONTAL, DETERMINATE, TOP, DISABLED, NORMAL
+from ttkbootstrap import Frame, Treeview, Label, Progressbar, Button, Labelframe, Combobox, StringVar, Entry
+from ttkbootstrap.constants import END, BOTTOM, X, LEFT, Y, BOTH, RIGHT, HORIZONTAL, DETERMINATE, TOP, DISABLED, NORMAL, INVERSE, ROUND
 from ttkbootstrap.scrolled import ScrolledFrame
 from ttkbootstrap.style import *
 
@@ -84,6 +84,18 @@ class HomePageView(SizeChangeListener):
                                 text="Deselect all",
                                 command=self.deselect_all)
 
+        self._selection_label = Label(self.option_frame, text="Select", bootstyle=(INVERSE, SUCCESS))
+        self._quantity_of_image = StringVar()
+        self._quantity_of_image.trace('w', lambda *_: self._validation_digit_only())
+        self._quantity_entry = Entry(self.option_frame, textvariable=self._quantity_of_image, bootstyle=SUCCESS)
+
+        self._from_label = Label(self.option_frame, text="From", bootstyle=(INVERSE, SUCCESS))
+        self._current_folder = Button(self.option_frame, 
+                                        text="Current Folder", 
+                                        state=DISABLED,
+                                        command=lambda: self._controller.select_from_current_folder(int(self._quantity_of_image.get())), 
+                                        bootstyle=(SUCCESS, OUTLINE))
+
         self._directory_loaded = {}
         self._current_visible = None
 
@@ -97,8 +109,13 @@ class HomePageView(SizeChangeListener):
         self._center_frame.pack(fill=BOTH, expand=True)
 
         self.option_frame.pack(side=TOP, fill=X, pady=(0,5))
-        self.select_all.pack(side=LEFT, pady=1, padx=5)
-        self.deselect_all.pack(side=LEFT, pady=1, padx=(0,5))
+        self.select_all.pack(side=RIGHT, pady=1, padx=5)
+        self.deselect_all.pack(side=RIGHT, pady=1, padx=(0,5))
+        
+        self._selection_label.pack(side=LEFT, padx=(2,5))
+        self._quantity_entry.pack(side=LEFT, padx=(0,5))
+        self._from_label.pack(side=LEFT, padx=(0,5))
+        self._current_folder.pack(side=LEFT, padx=(0,10))
 
         self._figure_drawing_option_frame.pack(side=BOTTOM, fill=X)
         self._start_button.pack(side=RIGHT, padx=5, pady=(0,5))
@@ -108,6 +125,20 @@ class HomePageView(SizeChangeListener):
         self._progress_bar.pack(side=RIGHT, padx=(0,5))
         self._loading_state.pack(side=RIGHT, padx=(0, 5))
         self._directory_treeview.pack(fill=Y, expand=True)
+
+    def _validation_digit_only(self) -> None:
+        value = self._quantity_of_image.get()
+        if value:
+            last_digit = value[-1]
+            if not str.isdigit(last_digit):
+                self._quantity_of_image.set(value[0:-1])
+        
+        state = DISABLED
+        if self._quantity_of_image.get():
+            state = NORMAL
+
+        self._current_folder.configure(state=state)
+            
 
     def get_interval(self) -> str:
         return self._timer_value.get()
@@ -140,8 +171,11 @@ class HomePageView(SizeChangeListener):
     def is_directory_loaded(self, folder: str) -> bool:
         return folder in self._directory_loaded
 
+    def get_directory_loaded(self) -> Directory:
+        return self._directory_loaded
+
     def new_directory_container(self, folder: str) -> None:
-        frame = ScrolledFrame(self._center_frame, autohide=True)
+        frame = ScrolledFrame(self._center_frame, autohide=True, bootstyle=ROUND)
         frame.pack(side=TOP, fill=BOTH, expand=True)
 
         self._directory_loaded[folder] = Directory(frame)

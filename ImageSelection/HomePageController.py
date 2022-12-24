@@ -74,6 +74,10 @@ class HomePageController:
         CycleManager.get_instance().stop_all()
         self._core.get_core().start_figure_drawing()
 
+    def select_from_current_folder(self, quantity: int) -> None:
+        current_folder = self._view.get_directory_loaded()[self._model.get_full_path_current_folder()]
+        current_folder.select_random(quantity)
+
     def _go_to(self, folder: str) -> None:
         self._view.clear_folders()
         self._model.set_current_folder(os.path.join(self._model.get_current_folder(), folder))

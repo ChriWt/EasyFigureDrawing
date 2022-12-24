@@ -1,5 +1,8 @@
 from __future__ import annotations
+import random
 import typing
+
+from Utils.CycleManager import CycleManager
 
 if typing.TYPE_CHECKING:
     from ttkbootstrap.scrolled import ScrolledFrame
@@ -48,6 +51,28 @@ class Directory:
     def select_all(self, state: bool=True) -> None:
         for preview in self._content:
             preview.set_value(state)
+
+    def select_random(self, quantity: int) -> None:
+        non_selected = []
+        for preview in self._content:
+            if not preview.get_value():
+                non_selected.append(preview)
+        
+        if not non_selected:
+            return
+
+        manager = CycleManager.get_instance()
+        
+        def select_new_random(quantity: int) -> None:
+            if quantity == 0:
+                return
+            
+            index = random.randrange(0, len(non_selected))
+            non_selected[index].set_value(True)
+            del non_selected[index]
+            manager.after(1, lambda: select_new_random(quantity - 1))
+
+        select_new_random(quantity)
 
     def deselect_all(self) -> None:
         self.select_all(False)
