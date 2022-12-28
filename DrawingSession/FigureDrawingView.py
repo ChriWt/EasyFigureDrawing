@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from PIL import Image,ImageTk
-from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, SUCCESS, STRIPED, Canvas, N, Checkbutton, OUTLINE, TOOLBUTTON, Label, DANGER
+from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, Canvas, N, Checkbutton, Label, STRIPED, DANGER, PRIMARY, TOOLBUTTON, OUTLINE
 from ttkbootstrap import TOP, BOTH
 
 from Utils.CycleManager import CycleManager
@@ -37,7 +37,7 @@ class FigureDrawingView:
         self._black_white = Image.open(r".\Assets\Black_white.png")
         self._black_white = self._black_white.resize((20, 20), Image.ANTIALIAS)
         self._black_white = ImageTk.PhotoImage(self._black_white)
-        Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(SUCCESS, TOOLBUTTON, OUTLINE)).pack(side=TOP)
+        Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP)
 
         self.random_flag = IntVar()
         self.random_flag.trace('w', lambda *x: self.change_random_flag())
@@ -45,38 +45,38 @@ class FigureDrawingView:
         self._random = Image.open(r".\Assets\Random.png")
         self._random = self._random.resize((20, 20), Image.ANTIALIAS)
         self._random = ImageTk.PhotoImage(self._random)
-        Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(SUCCESS, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
+        Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
 
         self._core.update()
         self._previous = Image.open(r".\Assets\Previous.png")
         self._previous = self._previous.resize((10, 20), Image.ANTIALIAS)
         self._previous = ImageTk.PhotoImage(self._previous)
-        self._previous_button = Button(self._core, image=self._previous, bootstyle=SUCCESS, command=self._controller.on_display_previous)
+        self._previous_button = Button(self._core, image=self._previous, command=self._controller.on_display_previous)
         self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
 
         self._next = Image.open(r".\Assets\Next.png")
         self._next = self._next.resize((10, 20), Image.ANTIALIAS)
         self._next = ImageTk.PhotoImage(self._next)
-        self._next_button = Button(self._core, image=self._next, bootstyle=SUCCESS, command=self._controller.on_display_next)
+        self._next_button = Button(self._core, image=self._next, command=self._controller.on_display_next)
         self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
 
-        self._timer = Label(self._core, text="00:00 / 00:00", bootstyle=SUCCESS, font=("TkDefaultFont", 13))
+        self._timer = Label(self._core, text="00:00 / 00:00", font=("TkDefaultFont", 13))
         self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
 
         self._timer_bar = Progressbar(self._core, 
                                     length=self._core.winfo_width() / 2, 
                                     mode='determinate',
-                                    maximum=100,
-                                    bootstyle=(STRIPED, SUCCESS))
+                                    bootstyle=(PRIMARY, STRIPED),
+                                    maximum=100)
         self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
         
-        self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click, bootstyle=SUCCESS)
+        self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click)
         self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
 
-        self._total_image_selected_label = Label(self._core, text="Selected:", bootstyle=SUCCESS, font=("TkDefaultFont", 14))
+        self._total_image_selected_label = Label(self._core, text="Selected:", font=("TkDefaultFont", 14))
         self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
 
-        self._current_image_index = Label(self._core, text="0/0", bootstyle=SUCCESS, font=("TkDefaultFont", 14))
+        self._current_image_index = Label(self._core, text="0/0", font=("TkDefaultFont", 14))
         self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
 
         self._image = None
@@ -165,7 +165,7 @@ class FigureDrawingView:
     def _on_pause_click(self) -> None:
         self._stop_timer = not self._stop_timer
         self._pause_button["text"] = "Pause" if not self._stop_timer else "Continue"
-        self._pause_button.configure(bootstyle=SUCCESS if not self._stop_timer else DANGER)
+        self._pause_button.configure(bootstyle=PRIMARY if not self._stop_timer else DANGER)
         if not self._stop_timer:
             self._continue_timer()
 
@@ -195,6 +195,6 @@ class FigureDrawingView:
         self._pause_button.place(x=window_width / 2 + window_width / 4 + 20, y=window_height - 40)
 
         self._total_image_selected_label.place(x=window_width - 130, y=5)
-        self._current_image_index.place(x=window_width - 60, y=25)
+        self._current_image_index.place(x=window_width - 60, y=30)
 
         self._controller.on_size_update()

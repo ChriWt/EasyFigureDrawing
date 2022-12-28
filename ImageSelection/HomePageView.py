@@ -41,11 +41,10 @@ class HomePageView(SizeChangeListener):
         self._bottom_frame = view.new_frame(Position.BOTTOM)
         self._center_frame = view.new_frame(Position.CENTER)
 
-        bottom_style = SECONDARY
-        self._bottom_bar = Frame(self._bottom_frame, bootstyle=bottom_style)
-        self._path_label = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
+        self._bottom_bar = Frame(self._bottom_frame)
+        self._path_label = Label(self._bottom_bar)
 
-        self._figure_drawing_option_frame = Labelframe(self._center_frame, text="Settings", bootstyle=SUCCESS)
+        self._figure_drawing_option_frame = Labelframe(self._center_frame, text="Settings")
 
         Label(self._figure_drawing_option_frame, text="Selected:").pack(side=LEFT, padx=5)
         self._selected_count = StringVar()
@@ -58,7 +57,6 @@ class HomePageView(SizeChangeListener):
         self._timer_minutes_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_minutes_value))
 
         Combobox(self._figure_drawing_option_frame, 
-                bootstyle=SUCCESS, 
                 width=2,
                 values=[x for x in range(1, 61)], 
                 textvariable=self._timer_minutes_value).pack(side=LEFT, pady=(0,5))
@@ -70,47 +68,42 @@ class HomePageView(SizeChangeListener):
         self._timer_seconds_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_seconds_value))
 
         Combobox(self._figure_drawing_option_frame, 
-                bootstyle=SUCCESS, 
                 width=2,
                 values=[x for x in range(1, 61)],
                 textvariable=self._timer_seconds_value).pack(side=LEFT, pady=(0,5))
 
-        self._start_button = Button(self._figure_drawing_option_frame, text="Start", command=self._controller.on_start_click, state=DISABLED, bootstyle=DANGER)
+        self._start_button = Button(self._figure_drawing_option_frame, text="Start", command=self._controller.on_start_click, state=DISABLED)
         
-        self._loading_state = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
+        self._loading_state = Label(self._bottom_bar)
         self._progress_bar = Progressbar(self._bottom_bar, 
-                                        bootstyle=(STRIPED, SUCCESS),
                                         orient=HORIZONTAL,
                                         mode=DETERMINATE,
                                         length=200,
                                         value=0)                                  
 
-        self._directory_treeview = Treeview(self._left_frame, bootstyle=SUCCESS)
+        self._directory_treeview = Treeview(self._left_frame)
         self._directory_treeview.bind("<Double-1>", self.on_directory_double_click)
 
-        self.option_frame = Frame(self._center_frame, bootstyle="success")
+        self.option_frame = Frame(self._center_frame)
 
-        self.select_all = Button(self.option_frame, 
-                                bootstyle="success-outline", 
+        self.select_all = Button(self.option_frame,  
                                 text="Select all",
                                 command=self.select_all)
 
         self.deselect_all = Button(self.option_frame, 
-                                bootstyle="success-outline", 
                                 text="Deselect all",
                                 command=self.deselect_all)
 
-        self._selection_label = Label(self.option_frame, text="Select", bootstyle=(INVERSE, SUCCESS))
+        self._selection_label = Label(self.option_frame, text="Select")
         self._quantity_of_image = StringVar()
         self._quantity_of_image.trace('w', lambda *_: self._validation_digit_only())
-        self._quantity_entry = Entry(self.option_frame, textvariable=self._quantity_of_image, bootstyle=SUCCESS)
+        self._quantity_entry = Entry(self.option_frame, textvariable=self._quantity_of_image)
 
-        self._from_label = Label(self.option_frame, text="From", bootstyle=(INVERSE, SUCCESS))
+        self._from_label = Label(self.option_frame, text="From")
         self._current_folder = Button(self.option_frame, 
                                         text="Current Folder", 
                                         state=DISABLED,
-                                        command=lambda: self._controller.select_from_current_folder(int(self._quantity_of_image.get())), 
-                                        bootstyle=(SUCCESS, OUTLINE))
+                                        command=lambda: self._controller.select_from_current_folder(int(self._quantity_of_image.get())))
 
         self._directory_loaded = {}
         self._current_visible = None
@@ -194,7 +187,7 @@ class HomePageView(SizeChangeListener):
         return self._directory_loaded
 
     def new_directory_container(self, folder: str) -> None:
-        frame = ScrolledFrame(self._center_frame, autohide=True, bootstyle=ROUND)
+        frame = ScrolledFrame(self._center_frame, autohide=True)
         frame.pack(side=TOP, fill=BOTH, expand=True)
 
         self._directory_loaded[folder] = Directory(frame)

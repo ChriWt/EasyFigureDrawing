@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+from Core.AppModel import AppModel
 from ImageSelection.HomePageModel import HomePageModel
 from ImageSelection.HomePageView import HomePageView
 
@@ -26,7 +27,8 @@ class HomePageController:
         folders = self._get_only_directories()
         
         self._view.set_path(os.path.abspath(self._model.get_current_folder()).replace(self._core.get_model().MINIATURE_FOLDER, self._core.get_model().RESOURCES_FOLDER))
-        self._view.insert_folder_content(parent=os.path.basename(self._model.get_current_folder()), folders=folders, add_back=False)
+        parent = os.path.basename(self._model.get_current_folder()).replace(AppModel.MINIATURE_FOLDER, AppModel.RESOURCES_FOLDER)
+        self._view.insert_folder_content(parent=parent, folders=folders, add_back=False)
 
     def display_folder_content(self) -> None:
         load_start_index = 0
@@ -83,7 +85,7 @@ class HomePageController:
         self._model.set_current_folder(os.path.join(self._model.get_current_folder(), folder))
         path = os.path.abspath(self._model.get_current_folder())
 
-        parent = os.path.basename(path)
+        parent = os.path.basename(path).replace(AppModel.MINIATURE_FOLDER, AppModel.RESOURCES_FOLDER)
         folders = self._get_only_directories()
         add_back = not os.path.samefile(self._model.get_current_folder(), self._core.get_model().MINIATURE_FOLDER)
         

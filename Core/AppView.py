@@ -4,7 +4,6 @@ from Utils.Position import Position
 from ttkbootstrap import Frame
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-
 import typing
 
 if typing.TYPE_CHECKING:
@@ -25,7 +24,7 @@ class AppView:
 
         self._root = ttk.Window(title="Figure Drawing", 
                                 size=(self._width, self._height), 
-                                themename="darkly")
+                                themename="superhero")
         self._root.place_window_center()
         self._root.bind("<Configure>", self._on_configure_event)
 

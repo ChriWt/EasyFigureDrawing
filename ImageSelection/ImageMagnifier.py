@@ -62,7 +62,6 @@ class ImageMagnifier(object):
 
         canvas.create_image(0, 0, image=self.photo, anchor=NW)
 
-
     def hidetip(self):
         tw = self.tipwindow
         self.tipwindow = None

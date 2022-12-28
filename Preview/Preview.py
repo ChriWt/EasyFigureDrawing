@@ -42,7 +42,6 @@ class Preview:
         self._canvas = Canvas(self._master, width=width, height=height)
         self._canvas.create_image(0, 0, anchor=NW, image=self._image, tags="image")
 
-
         self._checkbutton = Checkbutton(self._canvas, variable=self._value, bootstyle="success-toolbutton", text='')
 
         self._canvas.bind('<Button-1>', lambda *_: self.set_value(not self.get_value()))

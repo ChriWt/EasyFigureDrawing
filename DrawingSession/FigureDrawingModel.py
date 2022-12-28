@@ -16,11 +16,12 @@ class FigureDrawingModel:
         self._is_random = flag
 
     def get_next(self) -> str:
+        if self._is_random:
+            self._index = self._get_random()
+            return self._get_resource_file(self._references[self._index])
+
         if len(self._references) - 1 == self._index:
             return None
-        
-        if self._is_random:
-            return self._get_resource_file(self._references[self._get_random()])
         
         self._index += 1
         image = self._get_resource_file(self._references[self._index])
@@ -28,7 +29,8 @@ class FigureDrawingModel:
 
     def get_previous(self) -> str:
         if self._is_random:
-            return self._get_resource_file(self._references[self._get_random()])
+            self._index = self._get_random()
+            return self._get_resource_file(self._references[self._index])
 
         if self._index == 0:
             return None
@@ -54,7 +56,13 @@ class FigureDrawingModel:
         return self.get_reference(self._index)
 
     def _get_random(self) -> int:
-        return random.randrange(0, len(self._references))
+        if len(self._references) == 1:
+            return 0
+
+        if (value := random.randrange(0, len(self._references))) != self._index:
+            return value
+            
+        return self._get_random() 
 
     def _get_resource_file(self, image: str) -> str:
         return image.replace(AppModel.MINIATURE_FOLDER, AppModel.RESOURCES_FOLDER)
