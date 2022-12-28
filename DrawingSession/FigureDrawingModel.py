@@ -41,8 +41,14 @@ class FigureDrawingModel:
     def get_timer(self) -> int:
         return self._timer
 
+    def get_current_image_index(self) -> int:
+        return self._index + 1
+
     def get_reference(self, index: int) -> str:
         return self._get_resource_file(self._references[index])
+
+    def get_reference_count(self) -> int:
+        return len(self._references)
     
     def get_current_reference(self) -> str:
         return self.get_reference(self._index)

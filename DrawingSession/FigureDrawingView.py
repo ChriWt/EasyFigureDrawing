@@ -8,7 +8,6 @@ from ttkbootstrap import TOP, BOTH
 
 from Utils.CycleManager import CycleManager
 
-
 if typing.TYPE_CHECKING:
     from DrawingSession.FigureDrawingController import FigureDrawingController
 
@@ -61,8 +60,8 @@ class FigureDrawingView:
         self._next_button = Button(self._core, image=self._next, bootstyle=SUCCESS, command=self._controller.on_display_next)
         self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
 
-        self._timer = Label(self._core, text="00:00 / 00:00", bootstyle=SUCCESS)
-        self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 80, y=self._core.winfo_height() - 34)
+        self._timer = Label(self._core, text="00:00 / 00:00", bootstyle=SUCCESS, font=("TkDefaultFont", 13))
+        self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
 
         self._timer_bar = Progressbar(self._core, 
                                     length=self._core.winfo_width() / 2, 
@@ -73,6 +72,12 @@ class FigureDrawingView:
         
         self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click, bootstyle=SUCCESS)
         self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
+
+        self._total_image_selected_label = Label(self._core, text="Selected:", bootstyle=SUCCESS, font=("TkDefaultFont", 14))
+        self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
+
+        self._current_image_index = Label(self._core, text="0/0", bootstyle=SUCCESS, font=("TkDefaultFont", 14))
+        self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
 
         self._image = None
         self._grayscale_image = None
@@ -164,6 +169,16 @@ class FigureDrawingView:
         if not self._stop_timer:
             self._continue_timer()
 
+    def set_selected_count(self, count: int) -> None:
+        self._total_image_selected_label["text"] = f"Selected: {count}"
+
+        current = self._current_image_index["text"].split('/')[0]
+        self._current_image_index["text"] = f"{current}/{count}"
+
+    def set_current_image(self, index: int) -> None:
+        total = self._current_image_index["text"].split('/')[1]
+        self._current_image_index["text"] = f"{index}/{total}"
+
     def _scale_ui(self, *_) -> None:
         self._core.update()
         window_width = self._core.winfo_width()
@@ -172,11 +187,14 @@ class FigureDrawingView:
         self._previous_button.place(x=10, y=window_height / 2 - 10)
         self._next_button.place(x=window_width - 45, y=window_height / 2 - 10)
 
-        self._timer.place(x=window_width / 2 - window_width / 4 - 80, y=window_height - 34)
+        self._timer.place(x=window_width / 2 - window_width / 4 - 110, y=window_height - 35)
 
         self._timer_bar.place(x=window_width / 2 - window_width / 4, y=window_height - 30)
         self._timer_bar.configure(length=window_width / 2)
 
         self._pause_button.place(x=window_width / 2 + window_width / 4 + 20, y=window_height - 40)
+
+        self._total_image_selected_label.place(x=window_width - 130, y=5)
+        self._current_image_index.place(x=window_width - 60, y=25)
 
         self._controller.on_size_update()

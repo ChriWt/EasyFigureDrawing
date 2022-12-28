@@ -16,7 +16,9 @@ class FigureDrawingController:
         self._view = FigureDrawingView(self)
         self._model = FigureDrawingModel(self._core.get_model())
 
+        self._view.set_selected_count(self._model.get_reference_count())
         self._view.set_image(self._model.get_reference(0))
+        self._view.set_current_image(self._model.get_current_image_index())
         self._view.start_timer(self._model.get_timer())
         self._view.start()
     
@@ -25,6 +27,7 @@ class FigureDrawingController:
         if image:
             self._view.stop_timer()
             self._view.set_image(image)
+            self._view.set_current_image(self._model.get_current_image_index())
             self._view.start_timer(self._model.get_timer())
 
     def on_timer_end(self):
@@ -38,6 +41,7 @@ class FigureDrawingController:
         if image:
             self._view.stop_timer()
             self._view.set_image(image)
+            self._view.set_current_image(self._model.get_current_image_index())
             self._view.start_timer(self._model.get_timer())
     
     def on_size_update(self) -> None:
