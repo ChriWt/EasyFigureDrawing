@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from PIL import Image,ImageTk
-from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, SUCCESS, STRIPED, Canvas, N, Checkbutton, OUTLINE, TOOLBUTTON
+from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, SUCCESS, STRIPED, Canvas, N, Checkbutton, OUTLINE, TOOLBUTTON, Label, DANGER
 from ttkbootstrap import TOP, BOTH
 
 from Utils.CycleManager import CycleManager
@@ -21,6 +21,7 @@ class FigureDrawingView:
         self._core = Toplevel(root)
         self._core.title("Drawing Session")
         self._core.state("zoomed")
+        self._core.minsize(700, 400)
 
         self._photo_canvas = Canvas(self._core)
         self._photo_canvas.pack(side=TOP, fill=BOTH, expand=True)
@@ -51,23 +52,37 @@ class FigureDrawingView:
         self._previous = Image.open(r".\Assets\Previous.png")
         self._previous = self._previous.resize((10, 20), Image.ANTIALIAS)
         self._previous = ImageTk.PhotoImage(self._previous)
-        Button(self._core, image=self._previous, bootstyle=SUCCESS, command=self._controller.on_display_previous).place(x=10, y=(self._core.winfo_height() / 2 - 10))
+        self._previous_button = Button(self._core, image=self._previous, bootstyle=SUCCESS, command=self._controller.on_display_previous)
+        self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
 
         self._next = Image.open(r".\Assets\Next.png")
         self._next = self._next.resize((10, 20), Image.ANTIALIAS)
         self._next = ImageTk.PhotoImage(self._next)
-        Button(self._core, image=self._next, bootstyle=SUCCESS, command=self._controller.on_display_next).place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
+        self._next_button = Button(self._core, image=self._next, bootstyle=SUCCESS, command=self._controller.on_display_next)
+        self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
 
-        self._timer = Progressbar(self._core, 
-                                    length=self._core.winfo_width(), 
+        self._timer = Label(self._core, text="00:00 / 00:00", bootstyle=SUCCESS)
+        self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 80, y=self._core.winfo_height() - 34)
+
+        self._timer_bar = Progressbar(self._core, 
+                                    length=self._core.winfo_width() / 2, 
                                     mode='determinate',
                                     maximum=100,
                                     bootstyle=(STRIPED, SUCCESS))
-        self._timer.place(x=0, y=self._core.winfo_height() - 20)
+        self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
+        
+        self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click, bootstyle=SUCCESS)
+        self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
 
         self._image = None
         self._grayscale_image = None
         self._photoimage = None
+        self._current_time = 0
+        self._max_time = 0
+        self._stop_timer = False
+        self._manager = CycleManager.get_instance()
+
+        self._core.bind("<Configure>", self._scale_ui)
 
     def set_image(self, image_path: str) -> None:
         self._image = Image.open(image_path)
@@ -83,23 +98,41 @@ class FigureDrawingView:
         self._draw_image()
 
     def start_timer(self, time: int) -> None:
-        manager = CycleManager.get_instance()
+        self._max_time = time
+        self._current_time = time
 
-        def continue_timer(current_time):
-            if current_time < 0:
-                self._controller.on_timer_end()
-                return
-            self.update_timer_bar(current_time, time * 60)
-            current_time -= 1
-            manager.after(1000, lambda: continue_timer(current_time))
+        self._timer["text"] = f"00:00 / {self._format_time(self._max_time)}"
 
-        continue_timer(time * 60)
+        self._continue_timer()
+
+    def _continue_timer(self) -> None:
+        if self._current_time < 0:
+            self._controller.on_timer_end()
+            return
+
+        if not self._stop_timer:
+            self.update_timer_bar(self._current_time, self._max_time)
+            self.update_timer(self._current_time)
+            self._current_time -= 1
+
+        if not self._stop_timer:
+            self._manager.after(1000, self._continue_timer)
+
+    def _format_time(self, seconds: int) -> str:
+        _minutes = int(seconds / 60)
+        _seconds = int(seconds % 60)
+        _minutes = "" + str(_minutes) if _minutes >= 10 else "0" + str(_minutes)
+        _seconds = "" + str(_seconds) if _seconds >= 10 else "0" + str(_seconds)
+        return _minutes + ":" + _seconds
+    
+    def update_timer(self, current_time: int) -> None:
+        self._timer["text"] = f"{self._format_time(current_time)} / {self._format_time(self._max_time)}"
 
     def stop_timer(self) -> None:
         CycleManager.get_instance().stop_all()
 
     def update_timer_bar(self, current_time: int, time: int) -> None:
-        self._timer["value"] = int(current_time / time * 100)
+        self._timer_bar["value"] = int(current_time / time * 100)
 
     def change_black_white_flag(self) -> None:
         self._is_black_white = not self._is_black_white
@@ -123,3 +156,27 @@ class FigureDrawingView:
 
     def start(self) -> None:
         self._core.mainloop()
+
+    def _on_pause_click(self) -> None:
+        self._stop_timer = not self._stop_timer
+        self._pause_button["text"] = "Pause" if not self._stop_timer else "Continue"
+        self._pause_button.configure(bootstyle=SUCCESS if not self._stop_timer else DANGER)
+        if not self._stop_timer:
+            self._continue_timer()
+
+    def _scale_ui(self, *_) -> None:
+        self._core.update()
+        window_width = self._core.winfo_width()
+        window_height = self._core.winfo_height()
+
+        self._previous_button.place(x=10, y=window_height / 2 - 10)
+        self._next_button.place(x=window_width - 45, y=window_height / 2 - 10)
+
+        self._timer.place(x=window_width / 2 - window_width / 4 - 80, y=window_height - 34)
+
+        self._timer_bar.place(x=window_width / 2 - window_width / 4, y=window_height - 30)
+        self._timer_bar.configure(length=window_width / 2)
+
+        self._pause_button.place(x=window_width / 2 + window_width / 4 + 20, y=window_height - 40)
+
+        self._controller.on_size_update()

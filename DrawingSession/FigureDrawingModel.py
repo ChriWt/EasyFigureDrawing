@@ -43,6 +43,9 @@ class FigureDrawingModel:
 
     def get_reference(self, index: int) -> str:
         return self._get_resource_file(self._references[index])
+    
+    def get_current_reference(self) -> str:
+        return self.get_reference(self._index)
 
     def _get_random(self) -> int:
         return random.randrange(0, len(self._references))

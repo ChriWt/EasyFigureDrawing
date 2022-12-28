@@ -70,7 +70,7 @@ class HomePageController:
     def on_start_click(self) -> None:
         model = self._core.get_model()
         model.set_references(list(self._model.get_selected_images()))
-        model.set_time(self._view.get_interval())
+        model.set_time(int(self._view.get_minutes()) * 60 + int(self._view.get_seconds()))
         CycleManager.get_instance().stop_all()
         self._core.get_core().start_figure_drawing()
 

@@ -51,14 +51,30 @@ class HomePageView(SizeChangeListener):
         self._selected_count = StringVar()
         self._selected_count.set("0")
         Label(self._figure_drawing_option_frame, textvariable=self._selected_count, width=5).pack(side=LEFT, padx=5)
-        Label(self._figure_drawing_option_frame, text="Interval").pack(side=LEFT, padx=5)
-        self._timer_value = StringVar()
-        self._timer_value.set("5")
+        Label(self._figure_drawing_option_frame, text="Interval:").pack(side=LEFT, padx=5)
+
+        self._timer_minutes_value = StringVar()
+        self._timer_minutes_value.set("3")
+        self._timer_minutes_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_minutes_value))
+
         Combobox(self._figure_drawing_option_frame, 
                 bootstyle=SUCCESS, 
-                values=[x for x in range(1, 31)], 
-                textvariable=self._timer_value).pack(side=LEFT, pady=(0,5))
-        Label(self._figure_drawing_option_frame, text="minutes").pack(side=LEFT, padx=5)
+                width=2,
+                values=[x for x in range(1, 61)], 
+                textvariable=self._timer_minutes_value).pack(side=LEFT, pady=(0,5))
+
+        Label(self._figure_drawing_option_frame, text=":").pack(side=LEFT, padx=5)
+
+        self._timer_seconds_value = StringVar()
+        self._timer_seconds_value.set("30")
+        self._timer_seconds_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_seconds_value))
+
+        Combobox(self._figure_drawing_option_frame, 
+                bootstyle=SUCCESS, 
+                width=2,
+                values=[x for x in range(1, 61)],
+                textvariable=self._timer_seconds_value).pack(side=LEFT, pady=(0,5))
+
         self._start_button = Button(self._figure_drawing_option_frame, text="Start", command=self._controller.on_start_click, state=DISABLED, bootstyle=DANGER)
         
         self._loading_state = Label(self._bottom_bar, bootstyle="inverse-" + bottom_style)
@@ -127,21 +143,24 @@ class HomePageView(SizeChangeListener):
         self._directory_treeview.pack(fill=Y, expand=True)
 
     def _validation_digit_only(self) -> None:
-        value = self._quantity_of_image.get()
-        if value:
-            last_digit = value[-1]
-            if not str.isdigit(last_digit):
-                self._quantity_of_image.set(value[0:-1])
+        self._validate_input_digit_only(self._quantity_of_image)
         
         state = DISABLED
         if self._quantity_of_image.get():
             state = NORMAL
 
         self._current_folder.configure(state=state)
-            
 
-    def get_interval(self) -> str:
-        return self._timer_value.get()
+    def _validate_input_digit_only(self, variable) -> None:
+        value = variable.get()
+        if value:
+            variable.set(''.join([x for x in value if str.isdigit(x)]))
+
+    def get_minutes(self) -> str:
+        return self._timer_minutes_value.get()
+
+    def get_seconds(self) -> str:
+        return self._timer_seconds_value.get()
 
     def insert_folder_content(self, parent: str, folders: list, add_back: bool=True) -> None:
         self._directory_treeview.heading('#0', text=parent, anchor='w')

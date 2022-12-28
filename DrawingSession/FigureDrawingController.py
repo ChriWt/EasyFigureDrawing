@@ -39,6 +39,9 @@ class FigureDrawingController:
             self._view.stop_timer()
             self._view.set_image(image)
             self._view.start_timer(self._model.get_timer())
+    
+    def on_size_update(self) -> None:
+        self._view.set_image(self._model.get_current_reference())
 
     def get_core(self):
         return self._core
