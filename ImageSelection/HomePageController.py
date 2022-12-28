@@ -43,7 +43,10 @@ class HomePageController:
             else:
                 load_start_index = self._model.get_folder_loading_state()[self._model.COUNT]
         
-        self._view.new_directory_container(folder)
+        if load_start_index == 0: 
+            self._view.new_directory_container(folder)
+        else:
+            self._view.show_directory_loaded(folder)
 
         content = self._model.get_file()
         if not content:
@@ -51,6 +54,7 @@ class HomePageController:
         size = len(content)
         manager = CycleManager.get_instance()
 
+        self._view.change_container_size(size)
         self._view.change_progress_bar_state(True)
 
         def adding_cycle(i=0):
@@ -58,6 +62,7 @@ class HomePageController:
             if i == len(content):
                 self._model.set_current_folder_as_loaded()
                 self._view.change_progress_bar_state(False)
+                self._view.update_frame_size(folder)
                 return
 
             path = os.path.abspath(os.path.join(self._model.get_current_folder(), content[i]))

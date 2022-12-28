@@ -202,7 +202,7 @@ class HomePageView(SizeChangeListener):
         preview.add_trace(self._on_checkbutton_press)
         
         self._place_preview(directory_frame, preview)
-        directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
+        # directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
 
         directory_frame.add_content(preview)
     
@@ -263,6 +263,15 @@ class HomePageView(SizeChangeListener):
         y += Preview.VERTICAL_PHOTO_HEIGHT / 2 - height / 2
 
         preview.place(x=x, y=y)
+
+    def change_container_size(self, size: int) -> None:
+        path = self._controller.get_model().get_full_path_current_folder()
+        directory_frame = self._directory_loaded[path]
+
+        container_width = self._center_frame.winfo_width()
+        per_row = container_width // Preview.VERTICAL_PHOTO_WIDTH
+        row_count = size / per_row
+        directory_frame.get_frame().configure(height=row_count * Preview.VERTICAL_PHOTO_HEIGHT)
 
     def hide_current_directory_content(self) -> None:
         if self._current_visible is not None:
