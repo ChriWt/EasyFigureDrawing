@@ -58,7 +58,7 @@ class HomePageView(SizeChangeListener):
 
         Combobox(self._figure_drawing_option_frame, 
                 width=2,
-                values=[x for x in range(1, 61)], 
+                values=[x for x in range(0, 61)], 
                 textvariable=self._timer_minutes_value).pack(side=LEFT, pady=(0,5))
 
         Label(self._figure_drawing_option_frame, text=":").pack(side=LEFT, padx=5)
@@ -69,7 +69,7 @@ class HomePageView(SizeChangeListener):
 
         Combobox(self._figure_drawing_option_frame, 
                 width=2,
-                values=[x for x in range(1, 61)],
+                values=[x for x in range(0, 61)],
                 textvariable=self._timer_seconds_value).pack(side=LEFT, pady=(0,5))
 
         self._start_button = Button(self._figure_drawing_option_frame, text="Start", command=self._controller.on_start_click, state=DISABLED)
@@ -148,7 +148,7 @@ class HomePageView(SizeChangeListener):
         value = variable.get()
         if value:
             variable.set(''.join([x for x in value if str.isdigit(x)]))
-
+    
     def get_minutes(self) -> str:
         return self._timer_minutes_value.get()
 
@@ -202,7 +202,6 @@ class HomePageView(SizeChangeListener):
         preview.add_trace(self._on_checkbutton_press)
         
         self._place_preview(directory_frame, preview)
-        # directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)
 
         directory_frame.add_content(preview)
     

@@ -24,6 +24,9 @@ class CycleManager:
         lista.append(key)
         return key
 
+    def background_after(self, time: int, callback: callable) -> int:
+        return self._root.after(time, lambda: callback())
+
     def _on_animation_end(self, callback: list, animation_id: int) -> None:
         try:
             self._timelines.remove(animation_id)
