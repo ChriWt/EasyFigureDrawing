@@ -48,6 +48,9 @@ class HomePageModel:
     def get_full_path_current_folder(self) -> str:
         return os.path.abspath(self.get_current_folder())
 
+    def get_full_resource_path_current_folder(self) -> str:
+        return self.get_full_path_current_folder().replace(AppModel.MINIATURE_FOLDER, AppModel.RESOURCES_FOLDER)
+
     def reset_file_count(self) -> None:
         self._folder_content_count = None
 

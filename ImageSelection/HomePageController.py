@@ -99,6 +99,10 @@ class HomePageController:
         self._view.change_progress_bar_state(False)
         self.display_folder_content()
 
+    def on_open_current_folder_click(self, *_):
+        path = self._model.get_full_resource_path_current_folder()
+        os.startfile(path)
+
     def _on_checkbutton_press(self, path: str, state: bool) -> None:
         self._model.update_image_selection_state(path, state)
         selection_count = len(self._model.get_selected_images())

@@ -84,6 +84,10 @@ class HomePageView(SizeChangeListener):
         self._directory_treeview = Treeview(self._left_frame)
         self._directory_treeview.bind("<Double-1>", self.on_directory_double_click)
 
+        self._open_current_folder_button = Button(self._left_frame, 
+                                                    text="Open folder", 
+                                                    command=self._controller.on_open_current_folder_click)
+
         self.option_frame = Frame(self._center_frame)
 
         self.select_all = Button(self.option_frame,  
@@ -134,6 +138,7 @@ class HomePageView(SizeChangeListener):
         self._progress_bar.pack(side=RIGHT, padx=(0,5))
         self._loading_state.pack(side=RIGHT, padx=(0, 5))
         self._directory_treeview.pack(fill=Y, expand=True)
+        self._open_current_folder_button.pack(side=BOTTOM, fill=X, padx=5, pady=7)
 
     def _validation_digit_only(self) -> None:
         self._validate_input_digit_only(self._quantity_of_image)
