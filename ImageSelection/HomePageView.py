@@ -232,6 +232,7 @@ class HomePageView(SizeChangeListener):
         size = directory_frame.get_count()
 
         def cycle(i=0):
+            if directory_frame.get_count() == i: return
             preview = directory_frame.get_preview(i)
             self._place_preview(directory_frame, preview)
             directory_frame.get_frame().configure(height=(directory_frame.get_row() + 1) * Preview.VERTICAL_PHOTO_HEIGHT + (directory_frame.get_row() + 1) * 5)

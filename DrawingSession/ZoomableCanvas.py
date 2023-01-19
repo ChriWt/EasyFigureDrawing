@@ -54,7 +54,7 @@ class ZoomableCanvas:
         width, height = self._size
         self._size = (width * self.DELTA_ZOOM, height * self.DELTA_ZOOM)
 
-        self._zoomed_image = self._image.resize((int(x) for x in self._size), Image.ANTIALIAS)
+        self._zoomed_image = self._image.resize((int(x) for x in self._size), Image.BILINEAR)
         self._zoomed_grayscale = self._zoomed_image.convert("L")
 
         image = self._zoomed_image
@@ -75,7 +75,7 @@ class ZoomableCanvas:
         width, height = self._size
         self._size = (width / self.DELTA_ZOOM, height / self.DELTA_ZOOM)
 
-        self._zoomed_image = self._image.resize((int(x) for x in self._size), Image.ANTIALIAS)
+        self._zoomed_image = self._image.resize((int(x) for x in self._size), Image.BILINEAR)
         self._zoomed_grayscale = self._zoomed_image.convert("L")
 
         image = self._zoomed_image

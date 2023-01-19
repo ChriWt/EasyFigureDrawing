@@ -7,9 +7,11 @@ if typing.TYPE_CHECKING:
 
 class CycleManager:
 
+    DEFAULT = 0
+
     _root = None
     _instance = None
-    _timelines = list()
+    _timelines = {DEFAULT: []}
 
     def __init__(self) -> None:
         pass
@@ -17,19 +19,23 @@ class CycleManager:
     def set_root(self, root: Tk) -> None:
         self._root = root
 
-    def after(self, time: int, callback: callable) -> int:
+    def after(self, time: int, callback: callable, channel: int = DEFAULT) -> int:
         lista = [callback]
-        key = self._root.after(time, lambda : self._on_animation_end(*lista))
-        self._timelines.append(key)
+
+        key = self._root.after(time, lambda : self._on_animation_end(channel, *lista))
+
+        if channel not in self._timelines:
+            self._timelines[channel] = []
+        
+        self._timelines[channel].append(key)
+
+        # this is done to pass to _on_animation_end the animation_id
         lista.append(key)
         return key
 
-    def background_after(self, time: int, callback: callable) -> int:
-        return self._root.after(time, lambda: callback())
-
-    def _on_animation_end(self, callback: list, animation_id: int) -> None:
+    def _on_animation_end(self, channel: int, callback: list, animation_id: int) -> None:
         try:
-            self._timelines.remove(animation_id)
+            self._timelines[channel].remove(animation_id)
             callback()
         except Exception:
             pass
@@ -38,9 +44,13 @@ class CycleManager:
         self._root.after_cancel(animation_id)
 
     def stop_all(self) -> None:
-        for key in self._timelines:
+        for channel in self._timelines:
+            self.stop_all_in_channel(channel)
+        self._timelines = {self.DEFAULT: []}
+
+    def stop_all_in_channel(self, channel: int) -> None:
+        for key in self._timelines[channel]:
             self.stop(key)
-        self._timelines.clear()
 
     def get_instance():
         if CycleManager._instance is None:

@@ -96,7 +96,7 @@ class FigureDrawingView:
         self._current_time = time
 
         self._timer["text"] = f"00:00 / {self._format_time(self._max_time)}"
-
+        
         self._continue_timer()
 
     def _continue_timer(self) -> None:
@@ -110,7 +110,7 @@ class FigureDrawingView:
             self._current_time -= 1
 
         if not self._stop_timer:
-            self._manager.after(1000, self._continue_timer)
+            self._manager.after(1000, self._continue_timer, channel=2)
 
     def _format_time(self, seconds: int) -> str:
         _minutes = int(seconds / 60)
@@ -141,6 +141,9 @@ class FigureDrawingView:
 
     def _on_pause_click(self) -> None:
         self._stop_timer = not self._stop_timer
+        self._update_timer_button()
+
+    def _update_timer_button(self) -> None:
         self._pause_button["text"] = "Pause" if not self._stop_timer else "Continue"
         self._pause_button.configure(bootstyle=PRIMARY if not self._stop_timer else DANGER)
         if not self._stop_timer:
@@ -160,7 +163,7 @@ class FigureDrawingView:
         instance = CycleManager.get_instance()
 
         def scale():
-            instance.stop_all()
+            instance.stop_all_in_channel(1)
             self._core.update()
             window_width = self._core.winfo_width()
             window_height = self._core.winfo_height()
@@ -180,4 +183,4 @@ class FigureDrawingView:
 
             self._controller.on_size_update()
 
-        instance.after(120, scale)
+        instance.after(120, scale, channel=1)
