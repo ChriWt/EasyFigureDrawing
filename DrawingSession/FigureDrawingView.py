@@ -5,6 +5,7 @@ import typing
 from PIL import Image,ImageTk
 from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, Canvas, N, Checkbutton, Label, STRIPED, DANGER, PRIMARY, TOOLBUTTON, OUTLINE
 from ttkbootstrap import TOP, BOTH
+from DrawingSession.ZoomableCanvas import ZoomableCanvas
 
 from Utils.CycleManager import CycleManager
 
@@ -22,7 +23,7 @@ class FigureDrawingView:
         self._core.state("zoomed")
         self._core.minsize(700, 400)
 
-        self._photo_canvas = Canvas(self._core)
+        self._photo_canvas = ZoomableCanvas(self._core) # Canvas(self._core)
         self._photo_canvas.pack(side=TOP, fill=BOTH, expand=True)
 
         self._button_frame = Frame(self._core)
@@ -79,9 +80,6 @@ class FigureDrawingView:
         self._current_image_index = Label(self._core, text="0/0", font=("TkDefaultFont", 14))
         self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
 
-        self._image = None
-        self._grayscale_image = None
-        self._photoimage = None
         self._current_time = 0
         self._max_time = 0
         self._stop_timer = False
@@ -90,17 +88,8 @@ class FigureDrawingView:
         self._core.bind("<Configure>", self._scale_ui)
 
     def set_image(self, image_path: str) -> None:
-        self._image = Image.open(image_path)
-        
-        width, height = self._image.size
-        aspect_ratio = min(self._core.winfo_width() / width, self._core.winfo_height() / height)
-        new_width, new_height = (int(width * aspect_ratio), int(height * aspect_ratio))
-
-        self._image = self._image.resize((new_width, new_height), Image.ANTIALIAS)
-        
-        self._grayscale_image = self._image.convert("L")
-        
-        self._draw_image()
+        self._photo_canvas.new_image(image_path)
+        self._photo_canvas.draw(self._is_black_white)
 
     def start_timer(self, time: int) -> None:
         self._max_time = time
@@ -141,23 +130,11 @@ class FigureDrawingView:
 
     def change_black_white_flag(self) -> None:
         self._is_black_white = not self._is_black_white
-        self._draw_image()
+        self._photo_canvas.enable_grayscale_image(self._is_black_white)
     
     def change_random_flag(self) -> None:
         self._is_random = not self._is_random
         self._controller.update_random_flag(self._is_random)
-
-    def _draw_image(self) -> None:
-        image = None
-
-        if self._is_black_white:
-            image = self._grayscale_image
-        else:
-            image = self._image
-
-        self._photoimage = ImageTk.PhotoImage(image)
-        self._photo_canvas.delete("all")
-        self._photo_canvas.create_image(self._core.winfo_width() / 2, 0, image=self._photoimage, anchor=N)
 
     def start(self) -> None:
         self._core.mainloop()
@@ -180,21 +157,27 @@ class FigureDrawingView:
         self._current_image_index["text"] = f"{index}/{total}"
 
     def _scale_ui(self, *_) -> None:
-        self._core.update()
-        window_width = self._core.winfo_width()
-        window_height = self._core.winfo_height()
+        instance = CycleManager.get_instance()
 
-        self._previous_button.place(x=10, y=window_height / 2 - 10)
-        self._next_button.place(x=window_width - 45, y=window_height / 2 - 10)
+        def scale():
+            instance.stop_all()
+            self._core.update()
+            window_width = self._core.winfo_width()
+            window_height = self._core.winfo_height()
 
-        self._timer.place(x=window_width / 2 - window_width / 4 - 110, y=window_height - 35)
+            self._previous_button.place(x=10, y=window_height / 2 - 10)
+            self._next_button.place(x=window_width - 45, y=window_height / 2 - 10)
 
-        self._timer_bar.place(x=window_width / 2 - window_width / 4, y=window_height - 30)
-        self._timer_bar.configure(length=window_width / 2)
+            self._timer.place(x=window_width / 2 - window_width / 4 - 110, y=window_height - 35)
 
-        self._pause_button.place(x=window_width / 2 + window_width / 4 + 20, y=window_height - 40)
+            self._timer_bar.place(x=window_width / 2 - window_width / 4, y=window_height - 30)
+            self._timer_bar.configure(length=window_width / 2)
 
-        self._total_image_selected_label.place(x=window_width - 130, y=5)
-        self._current_image_index.place(x=window_width - 60, y=30)
+            self._pause_button.place(x=window_width / 2 + window_width / 4 + 20, y=window_height - 40)
 
-        self._controller.on_size_update()
+            self._total_image_selected_label.place(x=window_width - 130, y=5)
+            self._current_image_index.place(x=window_width - 60, y=30)
+
+            self._controller.on_size_update()
+
+        instance.after(120, scale)
