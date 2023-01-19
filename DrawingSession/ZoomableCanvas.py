@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 
 class ZoomableCanvas:
 
-    DELTA_ZOOM = 1.3
+    DELTA_ZOOM = 1.1
 
     def __init__(self, parent) -> None:
         self.body = Canvas(parent)

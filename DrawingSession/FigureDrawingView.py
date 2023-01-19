@@ -183,4 +183,4 @@ class FigureDrawingView:
 
             self._controller.on_size_update()
 
-        instance.after(120, scale, channel=1)
+        instance.after(60, scale, channel=1)
