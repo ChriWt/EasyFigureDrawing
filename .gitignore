@@ -7,6 +7,6 @@
 /.Miniatures_temp/*
 
 /.vscode/*
-
+.venv
 *.pyc
 .DS_Store
