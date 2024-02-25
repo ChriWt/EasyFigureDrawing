@@ -124,7 +124,7 @@ class ZoomableCanvas:
         aspect_ratio = min(self.body.winfo_width() / width, self.body.winfo_height() / height)
         self._size = (int(width * aspect_ratio), int(height * aspect_ratio))
 
-        self._image = self._image.resize(self._size, Image.ANTIALIAS)
+        self._image = self._image.resize(self._size, Image.LANCZOS)
         self._zoomed_image = self._image
         self._grayscale_image = self._image.convert("L")
         self._zoomed_grayscale = self._grayscale_image

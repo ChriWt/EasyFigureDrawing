@@ -36,7 +36,7 @@ class FigureDrawingView:
         self.black_white_flag.trace('w', lambda *x: self.change_black_white_flag())
 
         self._black_white = Image.open(r".\Assets\Black_white.png")
-        self._black_white = self._black_white.resize((20, 20), Image.ANTIALIAS)
+        self._black_white = self._black_white.resize((20, 20), Image.LANCZOS)
         self._black_white = ImageTk.PhotoImage(self._black_white)
         Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP)
 
@@ -44,19 +44,19 @@ class FigureDrawingView:
         self.random_flag.trace('w', lambda *x: self.change_random_flag())
 
         self._random = Image.open(r".\Assets\Random.png")
-        self._random = self._random.resize((20, 20), Image.ANTIALIAS)
+        self._random = self._random.resize((20, 20), Image.LANCZOS)
         self._random = ImageTk.PhotoImage(self._random)
         Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
 
         self._core.update()
         self._previous = Image.open(r".\Assets\Previous.png")
-        self._previous = self._previous.resize((10, 20), Image.ANTIALIAS)
+        self._previous = self._previous.resize((10, 20), Image.LANCZOS)
         self._previous = ImageTk.PhotoImage(self._previous)
         self._previous_button = Button(self._core, image=self._previous, command=self._controller.on_display_previous)
         self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
 
         self._next = Image.open(r".\Assets\Next.png")
-        self._next = self._next.resize((10, 20), Image.ANTIALIAS)
+        self._next = self._next.resize((10, 20), Image.LANCZOS)
         self._next = ImageTk.PhotoImage(self._next)
         self._next_button = Button(self._core, image=self._next, command=self._controller.on_display_next)
         self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
