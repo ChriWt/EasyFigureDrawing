@@ -54,7 +54,7 @@ class HomePageView(SizeChangeListener):
 
         self._timer_minutes_value = StringVar()
         self._timer_minutes_value.set("3")
-        self._timer_minutes_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_minutes_value))
+        self._timer_minutes_value.trace_add('write', lambda *_: self._validate_input_digit_only(self._timer_minutes_value))
 
         Combobox(self._figure_drawing_option_frame, 
                 width=2,
@@ -65,7 +65,7 @@ class HomePageView(SizeChangeListener):
 
         self._timer_seconds_value = StringVar()
         self._timer_seconds_value.set("30")
-        self._timer_seconds_value.trace('w', lambda *_: self._validate_input_digit_only(self._timer_seconds_value))
+        self._timer_seconds_value.trace_add('write', lambda *_: self._validate_input_digit_only(self._timer_seconds_value))
 
         Combobox(self._figure_drawing_option_frame, 
                 width=2,
@@ -100,7 +100,7 @@ class HomePageView(SizeChangeListener):
 
         self._selection_label = Label(self.option_frame, text="Select")
         self._quantity_of_image = StringVar()
-        self._quantity_of_image.trace('w', lambda *_: self._validation_digit_only())
+        self._quantity_of_image.trace_add('write', lambda *_: self._validation_digit_only())
         self._quantity_entry = Entry(self.option_frame, textvariable=self._quantity_of_image)
 
         self._from_label = Label(self.option_frame, text="From")

@@ -33,7 +33,7 @@ class FigureDrawingView:
         self._is_random = False
 
         self.black_white_flag = IntVar()
-        self.black_white_flag.trace('w', lambda *x: self.change_black_white_flag())
+        self.black_white_flag.trace_add('write', lambda *x: self.change_black_white_flag())
 
         self._black_white = Image.open(r".\Assets\Black_white.png")
         self._black_white = self._black_white.resize((20, 20), Image.LANCZOS)
@@ -41,7 +41,7 @@ class FigureDrawingView:
         Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP)
 
         self.random_flag = IntVar()
-        self.random_flag.trace('w', lambda *x: self.change_random_flag())
+        self.random_flag.trace_add('write', lambda *x: self.change_random_flag())
 
         self._random = Image.open(r".\Assets\Random.png")
         self._random = self._random.resize((20, 20), Image.LANCZOS)

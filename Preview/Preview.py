@@ -49,7 +49,7 @@ class Preview:
         self._checkbutton.place(x=width - 24, y=height - 24)
 
     def add_trace(self, callback) -> None:
-        self._value.trace("w", lambda *_: callback(self._path, self._value.get()))
+        self._value.trace_add("write", lambda *_: callback(self._path, self._value.get()))
 
     def get_size(self) -> tuple:
         return self._size
