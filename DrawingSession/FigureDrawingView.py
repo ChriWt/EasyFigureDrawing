@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import typing
+import win32clipboard
+from io import BytesIO
 
 from PIL import Image,ImageTk
 from ttkbootstrap import Toplevel, Frame, Button, IntVar, Progressbar, Canvas, N, Checkbutton, Label, STRIPED, DANGER, PRIMARY, TOOLBUTTON, OUTLINE
@@ -14,16 +16,19 @@ if typing.TYPE_CHECKING:
 
 class FigureDrawingView:
 
+    HIDE_COMPONENT_TIME = 3000
+
     def __init__(self, controller: FigureDrawingController) -> None:
         self._controller = controller
 
         root = self._controller.get_core().get_view().get_root()
         self._core = Toplevel(root)
+        self._core.attributes("-topmost", True)
+        self._core.update()
         self._core.title("Drawing Session")
         self._core.state("zoomed")
-        self._core.minsize(700, 400)
 
-        self._photo_canvas = ZoomableCanvas(self._core) # Canvas(self._core)
+        self._photo_canvas = ZoomableCanvas(self._core)
         self._photo_canvas.pack(side=TOP, fill=BOTH, expand=True)
 
         self._button_frame = Frame(self._core)
@@ -38,54 +43,64 @@ class FigureDrawingView:
         self._black_white = Image.open(r".\Assets\Black_white.png")
         self._black_white = self._black_white.resize((20, 20), Image.LANCZOS)
         self._black_white = ImageTk.PhotoImage(self._black_white)
-        Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP)
+        self._black_white_button = Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
+        # self._black_white_button.pack(side=TOP)
 
         self.random_flag = IntVar()
-        self.random_flag.trace_add('write', lambda *x: self.change_random_flag())
+        self.random_flag.trace_add('write', lambda *_: self.change_random_flag())
 
         self._random = Image.open(r".\Assets\Random.png")
         self._random = self._random.resize((20, 20), Image.LANCZOS)
         self._random = ImageTk.PhotoImage(self._random)
-        Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE)).pack(side=TOP, pady=5)
+        self._random_reference_button = Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
+        # self._random_reference_button.pack(side=TOP, pady=5)
+
+        self._copy_reference_button = Checkbutton(self._button_frame, text="copy", command=self._copy_to_clipboard, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
+        # self._copy_reference_button.pack(side=TOP, pady=5)
 
         self._core.update()
         self._previous = Image.open(r".\Assets\Previous.png")
         self._previous = self._previous.resize((10, 20), Image.LANCZOS)
         self._previous = ImageTk.PhotoImage(self._previous)
         self._previous_button = Button(self._core, image=self._previous, command=self._controller.on_display_previous)
-        self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
+        # self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
 
         self._next = Image.open(r".\Assets\Next.png")
         self._next = self._next.resize((10, 20), Image.LANCZOS)
         self._next = ImageTk.PhotoImage(self._next)
         self._next_button = Button(self._core, image=self._next, command=self._controller.on_display_next)
-        self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
+        # self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
 
         self._timer = Label(self._core, text="00:00 / 00:00", font=("TkDefaultFont", 13))
-        self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
+        # self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
 
         self._timer_bar = Progressbar(self._core, 
                                     length=self._core.winfo_width() / 2, 
                                     mode='determinate',
                                     bootstyle=(PRIMARY, STRIPED),
                                     maximum=100)
-        self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
+        # self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
         
         self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click)
-        self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
+        # self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
 
         self._total_image_selected_label = Label(self._core, text="Selected:", font=("TkDefaultFont", 14))
-        self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
+        # self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
 
         self._current_image_index = Label(self._core, text="0/0", font=("TkDefaultFont", 14))
-        self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
+        # self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
 
+        self._application_root = self._controller.get_core().get_view().get_root()
         self._current_time = 0
         self._max_time = 0
         self._stop_timer = False
+        self._visual_component_timer = None
         self._manager = CycleManager.get_instance()
 
         self._core.bind("<Configure>", self._scale_ui)
+        self._core.bind("<Motion>", self._on_mouse_move)
+
+        self._show_components()
 
     def set_image(self, image_path: str) -> None:
         self._photo_canvas.new_image(image_path)
@@ -184,3 +199,75 @@ class FigureDrawingView:
             self._controller.on_size_update()
 
         instance.after(60, scale, channel=1)
+
+    def _copy_to_clipboard(self) -> None:
+        bytes_image = self._load_image()
+        self._send_to_clipboard(bytes_image)
+        self._copy_reference_button.configure(text="copied", state="disabled")
+        self._controller.get_core().get_view().get_root().after(2000, self._reset_button)
+
+    def _load_image(self) -> bytes:
+        image_path = self._controller.get_current_reference()
+        image = Image.open(image_path)
+
+        output = BytesIO()
+        image.convert("RGB").save(output, "BMP")
+        data = output.getvalue()[14:]
+        output.close()
+
+        return data
+    
+    def _send_to_clipboard(self, data: bytes) -> None:
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
+        win32clipboard.CloseClipboard()
+
+    def _reset_button(self) -> None:
+        self._copy_reference_button.configure(text="copy", state="normal")
+
+    def _on_mouse_move(self, _) -> None:
+        if self._visual_component_timer is None:
+            self._show_components()
+        self._start_visual_component_timer()
+
+    def _start_visual_component_timer(self) -> None:
+        if self._visual_component_timer is not None:
+            self._application_root.after_cancel(self._visual_component_timer)
+        self._visual_component_timer = self._application_root.after(self.HIDE_COMPONENT_TIME, self._on_visual_component_timer_end)
+
+    def _on_visual_component_timer_end(self) -> None:
+        self._visual_component_timer = None
+        self._hide_components()
+
+    def _show_components(self) -> None:
+        self._black_white_button.pack(side=TOP)
+        self._random_reference_button.pack(side=TOP, pady=5)
+        self._copy_reference_button.pack(side=TOP, pady=5)
+
+        self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
+        self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
+
+        self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
+        self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
+        self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
+
+        self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
+        self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
+
+    def _hide_components(self) -> None:
+        if self._core.winfo_exists() == 0:
+            return
+        self._black_white_button.pack_forget()
+        self._random_reference_button.pack_forget()
+        self._copy_reference_button.pack_forget()
+
+        self._previous_button.place_forget()
+        self._next_button.place_forget()
+
+        self._timer.place_forget()
+        self._timer_bar.place_forget()
+        self._pause_button.place_forget()
+
+        self._total_image_selected_label.place_forget()
+        self._current_image_index.place_forget()

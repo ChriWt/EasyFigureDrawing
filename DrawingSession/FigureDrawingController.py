@@ -47,5 +47,8 @@ class FigureDrawingController:
     def on_size_update(self) -> None:
         self._view.set_image(self._model.get_current_reference())
 
+    def get_current_reference(self) -> str:
+        return self._model.get_current_reference()
+
     def get_core(self):
         return self._core
