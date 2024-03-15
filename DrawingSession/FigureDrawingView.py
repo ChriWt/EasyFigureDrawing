@@ -44,7 +44,6 @@ class FigureDrawingView:
         self._black_white = self._black_white.resize((20, 20), Image.LANCZOS)
         self._black_white = ImageTk.PhotoImage(self._black_white)
         self._black_white_button = Checkbutton(self._button_frame, image=self._black_white, variable=self.black_white_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
-        # self._black_white_button.pack(side=TOP)
 
         self.random_flag = IntVar()
         self.random_flag.trace_add('write', lambda *_: self.change_random_flag())
@@ -53,42 +52,33 @@ class FigureDrawingView:
         self._random = self._random.resize((20, 20), Image.LANCZOS)
         self._random = ImageTk.PhotoImage(self._random)
         self._random_reference_button = Checkbutton(self._button_frame, image=self._random, variable=self.random_flag, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
-        # self._random_reference_button.pack(side=TOP, pady=5)
 
         self._copy_reference_button = Checkbutton(self._button_frame, text="copy", command=self._copy_to_clipboard, bootstyle=(PRIMARY, TOOLBUTTON, OUTLINE))
-        # self._copy_reference_button.pack(side=TOP, pady=5)
 
         self._core.update()
         self._previous = Image.open(r".\Assets\Previous.png")
         self._previous = self._previous.resize((10, 20), Image.LANCZOS)
         self._previous = ImageTk.PhotoImage(self._previous)
         self._previous_button = Button(self._core, image=self._previous, command=self._controller.on_display_previous)
-        # self._previous_button.place(x=10, y=(self._core.winfo_height() / 2 - 10))
 
         self._next = Image.open(r".\Assets\Next.png")
         self._next = self._next.resize((10, 20), Image.LANCZOS)
         self._next = ImageTk.PhotoImage(self._next)
         self._next_button = Button(self._core, image=self._next, command=self._controller.on_display_next)
-        # self._next_button.place(x=self._core.winfo_width() - 45, y=(self._core.winfo_height() / 2 - 10))
 
         self._timer = Label(self._core, text="00:00 / 00:00", font=("TkDefaultFont", 13))
-        # self._timer.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4 - 110, y=self._core.winfo_height() - 35)
 
         self._timer_bar = Progressbar(self._core, 
                                     length=self._core.winfo_width() / 2, 
                                     mode='determinate',
                                     bootstyle=(PRIMARY, STRIPED),
                                     maximum=100)
-        # self._timer_bar.place(x=self._core.winfo_width() / 2 - self._core.winfo_width() / 4, y=self._core.winfo_height() - 30)
         
         self._pause_button = Button(self._core, text="Pause", width=9, command=self._on_pause_click)
-        # self._pause_button.place(x=self._core.winfo_width() / 2 + self._core.winfo_width() / 4 + 20, y=self._core.winfo_height() - 40)
 
         self._total_image_selected_label = Label(self._core, text="Selected:", font=("TkDefaultFont", 14))
-        # self._total_image_selected_label.place(x=self._core.winfo_width() - 130, y=5)
 
         self._current_image_index = Label(self._core, text="0/0", font=("TkDefaultFont", 14))
-        # self._current_image_index.place(x=self._core.winfo_width() - 60, y=30)
 
         self._application_root = self._controller.get_core().get_view().get_root()
         self._current_time = 0
