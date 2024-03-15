@@ -32,7 +32,6 @@ class FigureDrawingView:
         self._photo_canvas.pack(side=TOP, fill=BOTH, expand=True)
 
         self._button_frame = Frame(self._core)
-        self._button_frame.place(x=5, y=5)
 
         self._is_black_white = False
         self._is_random = False
@@ -89,6 +88,7 @@ class FigureDrawingView:
 
         self._core.bind("<Configure>", self._scale_ui)
         self._core.bind("<Motion>", self._on_mouse_move)
+        self._core.bind("<Button-1>", self._on_mouse_move)
 
         self._show_components()
 
@@ -231,6 +231,7 @@ class FigureDrawingView:
         self._hide_components()
 
     def _show_components(self) -> None:
+        self._button_frame.place(x=5, y=5)
         self._black_white_button.pack(side=TOP)
         self._random_reference_button.pack(side=TOP, pady=5)
         self._copy_reference_button.pack(side=TOP, pady=5)
@@ -248,6 +249,7 @@ class FigureDrawingView:
     def _hide_components(self) -> None:
         if self._core.winfo_exists() == 0:
             return
+        self._button_frame.place_forget()
         self._black_white_button.pack_forget()
         self._random_reference_button.pack_forget()
         self._copy_reference_button.pack_forget()
